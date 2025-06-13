@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Web Clone</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar (Chat List) -->
+        <div class="sidebar">
+            <!-- <h2 style="display: inline;">Chats</h2> -->
+             <div class="chat-footer">
+                <h1 style="display: inline;">Chats</h1>
+                <button style="margin-left: 330px;width: 30px;height: 30px;border: 4px solid #007bff;">
+                    <img src="pics/icons8-plus-math-20.png" alt="Send" class="icon" />
+                  </button>
+                  <button style="background:white;width: 30px;height: 30px;  border: 3.5px solid #007bff; right:0">
+                    <img src="pics/3dotblue.png" alt="Send" class="icon" />
+                  </button>
+
+    
+            </div>
+           
+
+            <input type="text" placeholder="Search">
+            <div class="chat" onclick="openChat('Umer')">
+                <img src="pics/def.jpeg" alt="User">
+
+                <div>
+                    <h3>Umer</h3>
+                    <p>What's going on?</p>
+                </div>
+                <span>01:00 PM</span>
+            </div>
+            <div class="chat" onclick="openChat('Ali')">
+                <img src="pics/def.jpeg" alt="User">
+
+                <div>
+                    <h3>Ali</h3>
+                    <p>hello</p>
+                </div>
+                <span>12:20 PM</span>
+            </div>
+            
+        </div>
+
+        <!-- Chat Window -->
+        <div class="chat-window">
+            <div class="chat-header">
+                <img src="pics/def.jpeg" alt="User">
+
+                <h3 id="chat-name">Umer</h3>
+            </div>
+            <div class="messages">
+                <div class="message sent">Hello! how are you?<span>12:34</span></div>
+                <div class="message received">I'm good, thanks!<span>12:35</span></div>
+                <div class="media">
+                    <img src="pics/uni.jpeg" alt="Video">
+                    <audio controls>
+                        <source src="audio.mp3" type="audio/mpeg">
+                    </audio>
+                </div>
+            </div>
+            <div class="chat-footer">
+                <button style="background:white;">
+                    <img src="pics/ios-30 (1).png" alt="Send" class="icon" />
+                  </button>
+                <input type="text" placeholder="Type a message...">
+                
+                <button style="background:rgba(255, 255, 255, 0); ">
+                    <img src="pics/icons8-microphone-30.png" alt="Send" class="icon" />
+                  </button>
+
+                  <button>
+                    <img src="pics/arrowup.png" alt="Send" class="icon" />
+                  </button>
+                  
+                  
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openChat(name) {
+            document.getElementById("chat-name").textContent = name;
+        }
+    </script>
+</body>
+</html>
