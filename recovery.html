@@ -80,5 +80,80 @@
           </div>
         </div>
       </div>
+
+<script>
+document.querySelector("form").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  // Get saved signup data
+  const username = localStorage.getItem("signup_username");
+  const full_name = localStorage.getItem("signup_full_name");
+  const password = localStorage.getItem("signup_password");
+
+  if (!username || !full_name || !password) {
+    alert("❌ Signup info missing. Please signup again.");
+    window.location.href = "signup.html";
+    return;
+  }
+
+  // Get recovery answers
+  const maiden = document.getElementById("Maiden").value.trim();
+  const pet = document.getElementById("Pet").value.trim();
+  const car = document.getElementById("Car").value.trim();
+  const school = document.getElementById("School").value.trim();
+  const town = document.getElementById("Town").value.trim();
+
+  if (!maiden || !pet || !car || !school || !town) {
+    alert("❌ Please answer all recovery questions.");
+    return;
+  }
+
+  // Prepare data object with backend-required field names
+  const data = {
+    username,
+    name: full_name,
+    password,
+    question1_answer: maiden,
+    question2_answer: pet,
+    question3_answer: car,
+    question4_answer: school,
+    question5_answer: town
+  };
+
+  try {
+    const response = await fetch("http://192.168.100.196:8888/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert("✅ Registration successful! Please login.");
+      // Clear stored signup data after successful registration
+      localStorage.removeItem("signup_username");
+      localStorage.removeItem("signup_full_name");
+      localStorage.removeItem("signup_password");
+      window.location.href = "index.html";
+    } else {
+      // Display error messages clearly
+      let errors = "";
+      if (Array.isArray(result.detail)) {
+        errors = result.detail.map(err => `${err.loc.join(" > ")}: ${err.msg}`).join("\n");
+      } else {
+        errors = result.detail || "Unknown error";
+      }
+      alert("❌ Registration failed:\n" + errors);
+    }
+  } catch (error) {
+    alert("❌ Registration failed: " + error.message);
+    console.error(error);
+  }
+});
+</script>
+
 </body>
 </html>

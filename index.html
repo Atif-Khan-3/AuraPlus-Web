@@ -15,7 +15,7 @@
            
             <div class="card my-5">
     
-              <form class="card-body cardbody-color p-lg-5">
+              <form id="loginForm" class="card-body cardbody-color p-lg-5">
     
                 <div class="text-center">
                     <h1 style="color: #001E1D; font-weight: bold;">AURA+</h1><br>
@@ -29,7 +29,7 @@
                     <label style="color: #4A4A4A; font-weight: 600;">Username</label>
 
 
-                  <input type="text" class="form-control" id="Username" aria-describedby="emailHelp"
+                  <input type="text" class="form-control" id="username" aria-describedby="emailHelp"
                     placeholder="User Name">
                 </div>
                 <div class="mb-3">
@@ -46,7 +46,7 @@
                     <!-- <button type="submit" class="btn btn-color px-5 mb-5 w-100">Login</button> -->
                 </div>
                 <div class="text-center">
-                    <button type="button" onclick="window.location.href='recovery.html';" style="color: #007BFF; font-weight: 700; background: none; border: none;">Sign In</button>
+                   <button type="submit" style="color: #007BFF; font-weight: 700; background: none; border: none;">Sign In</button>
 
                     <br>
                     <br><br>
@@ -67,5 +67,38 @@
           </div>
         </div>
       </div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+
+  try {
+    const response = await fetch("http://192.168.100.196:8888/login/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      localStorage.setItem("token", result.access_token); // Store JWT token
+      alert("✅ Login successful!");
+      window.location.href = "chat.html"; // Or dashboard.html
+    } else {
+      alert("❌ Login failed: " + (result.detail || "Invalid credentials"));
+    }
+  } catch (error) {
+    alert("❌ Error connecting to server.");
+    console.error(error);
+  }
+});
+</script>
+
 </body>
 </html>

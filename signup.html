@@ -80,5 +80,34 @@
           </div>
         </div>
       </div>
+<script>
+document.querySelector("form").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const username = document.getElementById("username").value.trim();
+  const full_name = document.getElementById("name").value.trim();
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("password1").value;
+
+  if (!username || !full_name || !password || !confirmPassword) {
+    alert("❌ All fields are required.");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    alert("❌ Passwords do not match.");
+    return;
+  }
+
+  // Save data temporarily in localStorage
+  localStorage.setItem("signup_username", username);
+  localStorage.setItem("signup_full_name", full_name);
+  localStorage.setItem("signup_password", password);
+
+  // Go to recovery page
+  window.location.href = "recovery.html";
+});
+</script>
+
 </body>
 </html>
