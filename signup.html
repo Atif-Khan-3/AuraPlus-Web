@@ -58,7 +58,7 @@
                 <div class="text-center">
                     <br>
                     <br>
-                    <button onclick="window.location.href='recovery.html';" style="color: #007BFF; font-weight: 700; background: none; border: none;">Next</button>
+                    <button style="color: #007BFF; font-weight: 700; background: none; border: none;">Next</button>
 
                    
                     <br><br>
@@ -81,7 +81,7 @@
         </div>
       </div>
 <script>
-document.querySelector("form").addEventListener("submit", function(e) {
+document.querySelector("form").addEventListener("submit", async function(e) {
   e.preventDefault();
 
   const username = document.getElementById("username").value.trim();
@@ -99,15 +99,31 @@ document.querySelector("form").addEventListener("submit", function(e) {
     return;
   }
 
-  // Save data temporarily in localStorage
-  localStorage.setItem("signup_username", username);
-  localStorage.setItem("signup_full_name", full_name);
-  localStorage.setItem("signup_password", password);
+  try {
+    // Check if username is available
+    const checkResponse = await fetch(`http://192.168.100.196:8888/check-username?username=${encodeURIComponent(username)}`);
+    const checkResult = await checkResponse.json();
 
-  // Go to recovery page
-  window.location.href = "recovery.html";
+    if (!checkResult.available) {
+      alert("❌ " + checkResult.message); // Username taken
+      return;
+    }
+
+    // Save signup data temporarily
+    localStorage.setItem("signup_username", username);
+    localStorage.setItem("signup_full_name", full_name);
+    localStorage.setItem("signup_password", password);
+
+    // Redirect to recovery
+    window.location.href = "signup2.html";
+
+  } catch (error) {
+    console.error("Error checking username:", error);
+    alert("❌ Error checking username. Please try again.");
+  }
 });
 </script>
+
 
 </body>
 </html>
