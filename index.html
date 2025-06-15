@@ -39,7 +39,8 @@
                     
                 </div>
                 <div class="text-center">
-                    <a href="recovery.html" style="color: #007BFF; font-weight: 600;">Forgot your password?</a>
+                   <a href="/forgetpassword1.html" id="forgotLink" style="color: #007BFF; font-weight: 600;">Forgot your password?</a>
+
                     <br>
                     <br>
                     <br>
@@ -88,6 +89,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
     if (response.ok) {
       localStorage.setItem("token", result.access_token); // Store JWT token
+      sessionStorage.setItem("username", username); // Store username in session
       alert("✅ Login successful!");
       window.location.href = "chat.html"; // Or dashboard.html
     } else {
@@ -99,6 +101,8 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   }
 });
 </script>
+///forget password
+
 
 </body>
 </html>
