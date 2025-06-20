@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WhatsApp Web Clone</title>
+  <link rel="stylesheet" href="styles.css" />
+<style>.modal {
+  display: none; /* ✅ keep only this */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+    width: 500px;
+    max-width: 90%;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #ddd;
+    background: white;
+}
+
+.modal-header h2 {
+    font-size: 20px;
+    font-weight: 500;
+    color: #3b4a54;
+    margin: 0;
+}
+
+.close-btn {
+    background: transparent;
+    border: none;
+    color: #8696a0;
+    font-size: 24px;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.close-btn:hover {
+    background: #e6e6e6;
+}
+
+.modal-search {
+    padding: 15px 20px;
+    background: white;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: center;
+}
+
+.modal-search input {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 15px 10px 40px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    color: #3b4a54;
+    font-size: 14px;
+    outline: none;
+    background: #f0f2f5 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="gray" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') no-repeat 15px center;
+    background-size: 16px;
+}
+
+.modal-body {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding: 10px 0;
+}
+
+.section-title {
+    padding: 8px 20px;
+    font-size: 14px;
+    color: #8696a0;
+    background: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.user-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.user-item:hover {
+    background: #f5f5f5;
+}
+
+.user-item img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+}
+
+.user-info {
+    flex-grow: 1;
+}
+
+.user-info h3 {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0 0 3px 0;
+    color: #3b4a54;
+}
+
+.user-info p {
+    font-size: 13px;
+    color: #8696a0;
+    margin: 0;
+}
+
+.checkbox-container {
+    margin-left: auto;
+}
+
+.checkbox-container input {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    background: #f0f2f5;
+    text-align: right;
+    border-top: 1px solid #ddd;
+}
+
+.modal-footer button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 18px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.modal-footer button:hover {
+    background: #0069d9;
+}
+</style>
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="chat-footer">
+        <h1 style="display: inline;">Chats</h1>
+        <button id="open-modal" style="margin-left: 330px;width: 30px;height: 30px;border: 4px solid #007bff;">
+          <img src="pics/icons8-plus-math-20.png" alt="Send" class="icon" />
+        </button>
+        <button style="background:white;width: 30px;height: 30px;  border: 3.5px solid #007bff; right:0">
+          <img src="pics/3dotblue.png" alt="Send" class="icon" />
+        </button>
+      </div>
+
+      <input type="text" placeholder="Search" />
+      <!-- Chat list will be injected here -->
+
+
+   <!-- Chat list gets replaced here -->
+<div id="chat-placeholder">
+  <div class="chat" onclick="openChat('Umer')">
+    <img src="pics/def.jpeg" alt="User" />
+    <div>
+      <h3>Umer</h3>
+      <p>What's going on?</p>
+    </div>
+    <span>01:00 PM</span>
+  </div>
+  <div class="chat" onclick="openChat('Ali')">
+    <img src="pics/def.jpeg" alt="User" />
+    <div>
+      <h3>Ali</h3>
+      <p>hello</p>
+    </div>
+    <span>12:20 PM</span>
+  </div>
+</div>
+
+    </div>
+
+    <!-- Chat Window -->
+    <div class="chat-window">
+      <div class="chat-header">
+        <img src="pics/def.jpeg" alt="User" />
+        <h3 id="chat-name">Umer</h3>
+      </div>
+      <div class="messages">
+        <div class="message sent">Hello! how are you?<span>12:34</span></div>
+        <div class="message received">I'm good, thanks!<span>12:35</span></div>
+        <div class="media">
+          <img src="pics/uni.jpeg" alt="Video" />
+          <audio controls>
+            <source src="audio.mp3" type="audio/mpeg" />
+          </audio>
+        </div>
+      </div>
+      <div class="chat-footer">
+        <button style="background:white;">
+          <img src="pics/ios-30 (1).png" alt="Send" class="icon" />
+        </button>
+        <input type="text" placeholder="Type a message..." />
+        <button style="background:rgba(255, 255, 255, 0);">
+          <img src="pics/icons8-microphone-30.png" alt="Send" class="icon" />
+        </button>
+        <button>
+          <img src="pics/arrowup.png" alt="Send" class="icon" />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- New contact Modal -->
+  <div class="modal" id="new-contact-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>New Contact</h2>
+        <button class="close-btn" id="close-contact-modal">&times;</button>
+      </div>
+
+      <div class="modal-search">
+        <input type="text" placeholder="Search for username" />
+      </div>
+
+      <div class="modal-body">
+        <div class="section-title">Users available on Aura+</div>
+        <ul class="user-list">
+          <!-- Repeat user item -->
+          <li class="user-item">
+            <img src="https://ui-avatars.com/api/?name=John+Doe&background=007bff&color=fff" alt="John Doe" />
+            <div class="user-info">
+              <h3>John Doe</h3>
+              <p>@johndoe</p>
+            </div>
+            <div class="checkbox-container">
+              <input type="checkbox" />
+            </div>
+          </li>
+          <!-- You can duplicate and change names/colors for more users -->
+        </ul>
+      </div>
+
+      <div class="modal-footer">
+        <button id="new-group-modal-button">Create Group</button>
+      </div>
+    </div>
+  </div>
+
+<!-- Modal -->
+<div class="modal" id="new-group-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modal-title">New Group</h2>
+      <button class="close-btn" id="close-group-modal">&times;</button>
+    </div>
+
+    <div class="modal-search">
+      <input type="text" placeholder="Search for username" />
+    </div>
+
+    <div class="modal-body">
+      <div class="section-title">Users available on Aura+</div>
+      <ul class="user-list">
+        <li class="user-item">
+          <img src="https://ui-avatars.com/api/?name=John+Doe&background=007bff&color=fff" alt="John Doe" />
+          <div class="user-info">
+            <h3>John Doe</h3>
+            <p>@johndoe</p>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" class="user-checkbox" />
+          </div>
+        </li>
+        <!-- Duplicate for more users -->
+      </ul>
+    </div>
+
+    <div class="modal-footer">
+      <button id="switch-to-group">Create Group</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  <!-- JavaScript -->
+  <script>
+    function openChat(name) {
+      document.getElementById("chat-name").textContent = name;
+    }
+
+    // Modal Show/Hide Logic
+  document.getElementById("open-modal").addEventListener("click", function () {
+  document.getElementById("new-contact-modal").style.display = "flex"; // ✅ change to flex when opening
+  loadContacts();
+});
+
+
+    document.getElementById("close-contact-modal").addEventListener("click", function () {
+      document.getElementById("new-contact-modal").style.display = "none";
+    });
+
+
+   // Modal Show/Hide Logic
+  document.getElementById("new-group-modal-button").addEventListener("click", function () {
+  document.getElementById("new-group-modal").style.display = "flex"; // ✅ change to flex when opening
+  document.getElementById("new-contact-modal").style.display = "none";
+  loadGroupContacts(); 
+
+});
+
+    document.getElementById("close-group-modal").addEventListener("click", function () {
+      document.getElementById("new-group-modal").style.display = "none";
+    });
+
+    // Optional: Close modal if clicked outside modal content
+    window.onclick = function (event) {
+      const modal = document.getElementById("new-group-modal");
+      if (event.target == modal) {
+        modal.style.display = "none";
+         document.getElementById("new-contact-modal").style.display = "none";
+
+      }
+    };
+
+
+  </script>
+
+
+
+<script>
+const API_URL_CHATS = "http://192.168.100.196:8888/get_user_chats";
+
+async function loadChats() {
+  const username = "atif"; // or use: sessionStorage.getItem("username");
+
+  if (!username) {
+    alert("⚠️ User not logged in.");
+    window.location.href = "login.html";
+    return;
+  }
+
+  try {
+    const res = await fetch(API_URL_CHATS, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username })
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch chats");
+
+    const chats = await res.json();
+    console.log("✅ Chats fetched:", chats);
+
+    const chatList = document.getElementById("chat-placeholder");
+    chatList.innerHTML = ""; // clear old chats
+
+    if (!chats.length) {
+      chatList.innerHTML = "<p style='padding: 20px;'>No chats available.</p>";
+      return;
+    }
+
+    chats.forEach(chat => {
+      const chatDiv = document.createElement("div");
+      chatDiv.className = "chat";
+      chatDiv.onclick = () => openChat(chat.name || chat.with_username || "Unknown");
+
+      // Profile picture
+      const imgSrc = chat.profile_picture_base64
+        ? chat.profile_picture_base64
+        : 'pics/def.jpeg';
+
+      // Time
+      let timeText = "";
+      if (chat.last_message_time) {
+        const dt = new Date(chat.last_message_time);
+        timeText = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+
+      // Chat box HTML
+      chatDiv.innerHTML = `
+        <img src="${imgSrc}" alt="User" />
+        <div>
+          <h3>${chat.name}</h3>
+          <p>${chat.last_message || ''}</p>
+        </div>
+        <span>${timeText}</span>
+      `;
+
+      chatList.appendChild(chatDiv);
+    });
+
+  } catch (err) {
+    console.error("❌ Error loading chats:", err);
+    alert("Could not load chats.");
+  }
+}
+
+// Load on window ready
+window.onload = loadChats;
+</script>
+<script>
+const API_URL_USERS = "http://192.168.100.196:8888/get-users";
+
+async function loadContacts() {
+  const username = "atif"; // Replace with sessionStorage.getItem("username") if needed
+
+  try {
+    const res = await fetch(API_URL_USERS, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username })
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch users");
+
+    const { users } = await res.json();
+    console.log("📦 Users fetched:", users);
+
+    const userList = document.querySelector("#new-contact-modal .user-list");
+    userList.innerHTML = ""; // Clear existing items
+
+    users.forEach(user => {
+      const li = document.createElement("li");
+      li.className = "user-item";
+
+      const imgSrc = user.profile_image
+        ? `data:image/png;base64,${user.profile_image}`
+        : "pics/def.jpeg";
+
+      li.innerHTML = `
+        <img src="${imgSrc}" alt="${user.name}" />
+        <div class="user-info">
+          <h3>${user.name}</h3>
+          <p>@${user.username}</p>
+        </div>
+        <div class="checkbox-container">
+          <input type="checkbox" />
+        </div>
+      `;
+
+      userList.appendChild(li);
+    });
+
+  } catch (err) {
+    console.error("❌ Error fetching contacts:", err);
+    alert("Could not load contacts.");
+  }
+}
+
+</script>
+<script>
+async function loadGroupContacts() {
+  const username = "atif"; // Or use sessionStorage.getItem("username")
+
+  try {
+    const res = await fetch("http://192.168.100.196:8888/get-users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username })
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch users");
+
+    const { users } = await res.json();
+    console.log("📦 Group users fetched:", users);
+
+    const groupList = document.querySelector("#new-group-modal .user-list");
+    groupList.innerHTML = ""; // Clear previous
+
+    users.forEach(user => {
+      const li = document.createElement("li");
+      li.className = "user-item";
+
+      const imgSrc = user.profile_image
+        ? `data:image/png;base64,${user.profile_image}`
+        : "pics/def.jpeg";
+
+      li.innerHTML = `
+        <img src="${imgSrc}" alt="${user.name}" />
+        <div class="user-info">
+          <h3>${user.name}</h3>
+          <p>@${user.username}</p>
+        </div>
+        <div class="checkbox-container">
+          <input type="checkbox" class="user-checkbox" data-username="${user.username}" />
+        </div>
+      `;
+
+      groupList.appendChild(li);
+    });
+
+  } catch (err) {
+    console.error("❌ Error fetching group contacts:", err);
+    alert("Could not load group contacts.");
+  }
+}
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WhatsApp Web Clone</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f0f2f5;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 95%;
+      max-width: 1400px;
+      height: 95vh;
+      background: white;
+      display: flex;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 35%;
+      background-color: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #e1e1e1;
+    }
+
+    .sidebar-header {
+      padding: 15px 20px;
+      background-color: #f0f2f5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #e1e1e1;
+    }
+
+    .sidebar-header h1 {
+      font-size: 22px;
+      font-weight: 500;
+      color: #3b4a54;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .header-icons button {
+      background: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+    }
+
+    .header-icons button:hover {
+      background-color: #e6e6e6;
+      transform: scale(1.05);
+    }
+
+    .search-container {
+      padding: 10px 15px;
+      background-color: white;
+      border-bottom: 1px solid #e1e1e1;
+    }
+
+    .search-container input {
+      width: 100%;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 20px;
+      background-color: #f0f2f5;
+      font-size: 15px;
+      padding-left: 45px;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%238696a0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+      background-repeat: no-repeat;
+      background-position: 15px center;
+      background-size: 16px;
+    }
+
+    .chat-list {
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+
+    .chat {
+      display: flex;
+      padding: 12px 15px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      border-bottom: 1px solid #f0f2f5;
+    }
+
+    .chat:hover {
+      background-color: #e6e6e6;
+    }
+
+    .chat.active {
+      background-color: #d9dbde;
+    }
+
+    .chat img {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 15px;
+      border: 1px solid #e1e1e1;
+    }
+
+    .chat-info {
+      flex-grow: 1;
+    }
+
+    .chat-info h3 {
+      font-size: 17px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      color: #3b4a54;
+    }
+
+    .chat-info p {
+      font-size: 14px;
+      color: #8696a0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+
+    .chat-time {
+      font-size: 12px;
+      color: #8696a0;
+      align-self: flex-start;
+      margin-top: 5px;
+    }
+
+    /* Chat Window Styles */
+    .chat-window {
+      width: 65%;
+      display: flex;
+      flex-direction: column;
+      background-color: #efeae2;
+      background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23e6e6e6' fill-opacity='0.15' fill-rule='evenodd'/%3E%3C/svg%3E");
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      background-color: #f0f2f5;
+      border-bottom: 1px solid #e1e1e1;
+    }
+
+    .chat-header img {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 15px;
+      border: 1px solid #e1e1e1;
+    }
+
+    .chat-header h3 {
+      font-size: 18px;
+      font-weight: 500;
+      color: #3b4a54;
+    }
+
+    .messages {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      max-width: 65%;
+      padding: 10px 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      position: relative;
+      font-size: 16px;
+    }
+
+    .message.sent {
+      background-color: #d9fdd3;
+      align-self: flex-end;
+      border-top-right-radius: 0;
+    }
+
+    .message.received {
+      background-color: white;
+      align-self: flex-start;
+      border-top-left-radius: 0;
+    }
+
+    .message span {
+      position: absolute;
+      bottom: 4px;
+      right: 10px;
+      font-size: 11px;
+      color: #667781;
+    }
+
+    .chat-footer {
+      padding: 10px 15px;
+      background-color: #f0f2f5;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-footer input {
+      flex-grow: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 20px;
+      font-size: 15px;
+    }
+
+    .chat-footer button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s;
+    }
+
+    .chat-footer button:hover {
+      background-color: #e6e6e6;
+    }
+
+    .chat-footer button img {
+      width: 24px;
+      height: 24px;
+    }
+
+    .send-button {
+      background-color: #007bff !important;
+    }
+
+    .send-button:hover {
+      background-color: #0069d9 !important;
+    }
+
+    .send-button img {
+      filter: brightness(0) invert(1);
+    }
+
+    /* Modal Styles (Fixed) */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      width: 500px;
+      max-width: 90%;
+      max-height: 90vh;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      animation: modalFadeIn 0.3s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      border-bottom: 1px solid #ddd;
+      background: white;
+    }
+
+    .modal-header h2 {
+      font-size: 20px;
+      font-weight: 500;
+      color: #3b4a54;
+      margin: 0;
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: #8696a0;
+      font-size: 24px;
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .close-btn:hover {
+      background: #e6e6e6;
+    }
+
+    .modal-search {
+      padding: 15px 20px;
+      background: white;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .modal-search input {
+      width: 100%;
+      padding: 10px 15px 10px 40px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      color: #3b4a54;
+      font-size: 14px;
+      outline: none;
+      background: #f0f2f5 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="gray" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') no-repeat 15px center;
+      background-size: 16px;
+    }
+
+    .modal-body {
+      overflow-y: auto;
+      flex-grow: 1;
+      padding: 10px 0;
+    }
+
+    .section-title {
+      padding: 8px 20px;
+      font-size: 14px;
+      color: #8696a0;
+      background: white;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .user-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .user-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .user-item:hover {
+      background: #f5f5f5;
+    }
+
+    .user-item img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 15px;
+    }
+
+    .user-info {
+      flex-grow: 1;
+    }
+
+    .user-info h3 {
+      font-size: 16px;
+      font-weight: 500;
+      margin: 0 0 3px 0;
+      color: #3b4a54;
+    }
+
+    .user-info p {
+      font-size: 13px;
+      color: #8696a0;
+      margin: 0;
+    }
+
+    .checkbox-container {
+      margin-left: auto;
+    }
+
+    .checkbox-container input {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .modal-footer {
+      padding: 15px 20px;
+      background: #f0f2f5;
+      text-align: right;
+      border-top: 1px solid #ddd;
+    }
+
+    .modal-footer button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 18px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .modal-footer button:hover {
+      background: #0069d9;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .container {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+      }
+      
+      .sidebar {
+        width: 40%;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .sidebar {
+        width: 100%;
+      }
+      
+      .chat-window {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h1>Chats</h1>
+        <div class="header-icons">
+          <button id="open-modal" title="New Group">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <button title="Menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="1"></circle>
+              <circle cx="12" cy="5" r="1"></circle>
+              <circle cx="12" cy="19" r="1"></circle>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="search-container">
+        <input type="text" placeholder="Search" />
+      </div>
+      
+      <div class="chat-list">
+        <div class="chat active">
+          <img src="https://ui-avatars.com/api/?name=Umer&background=007bff&color=fff" alt="Umer" />
+          <div class="chat-info">
+            <h3>Umer</h3>
+            <p>What's going on?</p>
+          </div>
+          <span class="chat-time">01:00 PM</span>
+        </div>
+        
+        <div class="chat">
+          <img src="https://ui-avatars.com/api/?name=Ali&background=0f9d58&color=fff" alt="Ali" />
+          <div class="chat-info">
+            <h3>Ali</h3>
+            <p>hello</p>
+          </div>
+          <span class="chat-time">12:20 PM</span>
+        </div>
+        
+        <div class="chat">
+          <img src="https://ui-avatars.com/api/?name=Sara&background=f44336&color=fff" alt="Sara" />
+          <div class="chat-info">
+            <h3>Sara</h3>
+            <p>Did you finish the project?</p>
+          </div>
+          <span class="chat-time">11:45 AM</span>
+        </div>
+        
+        <div class="chat">
+          <img src="https://ui-avatars.com/api/?name=John&background=673ab7&color=fff" alt="John" />
+          <div class="chat-info">
+            <h3>John</h3>
+            <p>Meeting at 3 PM tomorrow</p>
+          </div>
+          <span class="chat-time">10:30 AM</span>
+        </div>
+        
+        <div class="chat">
+          <img src="https://ui-avatars.com/api/?name=Emma&background=e91e63&color=fff" alt="Emma" />
+          <div class="chat-info">
+            <h3>Emma</h3>
+            <p>Thanks for your help!</p>
+          </div>
+          <span class="chat-time">Yesterday</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Window -->
+    <div class="chat-window">
+      <div class="chat-header">
+        <img src="https://ui-avatars.com/api/?name=Umer&background=007bff&color=fff" alt="Umer" />
+        <h3>Umer</h3>
+      </div>
+      
+      <div class="messages">
+        <div class="message received">Hi there! How are you doing?<span>12:30 PM</span></div>
+        <div class="message sent">I'm doing great, thanks for asking! How about you?<span>12:31 PM</span></div>
+        <div class="message received">I'm good too. Did you see the new project requirements?<span>12:32 PM</span></div>
+        <div class="message sent">Yes, I reviewed them this morning. Looks challenging but exciting!<span>12:33 PM</span></div>
+        <div class="message received">Agreed. I think we should schedule a meeting to discuss the approach.<span>12:35 PM</span></div>
+        <div class="message sent">That sounds good. How about tomorrow at 10 AM?<span>12:36 PM</span></div>
+        <div class="message received">Perfect, I'll set up the meeting and invite the team.<span>12:37 PM</span></div>
+        <div class="message sent">Great! Let me know if you need any help preparing materials.<span>12:38 PM</span></div>
+      </div>
+      
+      <div class="chat-footer">
+        <button title="Emoji">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8696a0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+            <line x1="9" y1="9" x2="9.01" y2="9"></line>
+            <line x1="15" y1="9" x2="15.01" y2="9"></line>
+          </svg>
+        </button>
+        
+        <button title="Attach">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8696a0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+          </svg>
+        </button>
+        
+        <input type="text" placeholder="Type a message..." />
+        
+        <button class="send-button" title="Send">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Group Modal -->
+  <div class="modal" id="new-group-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>New Group</h2>
+        <button class="close-btn" id="close-modal">&times;</button>
+      </div>
+
+      <div class="modal-search">
+        <input type="text" placeholder="Search for username" />
+      </div>
+
+      <div class="modal-body">
+        <div class="section-title">Users available on Aura+</div>
+        <ul class="user-list">
+          <li class="user-item">
+            <img src="https://ui-avatars.com/api/?name=John+Doe&background=007bff&color=fff" alt="John Doe" />
+            <div class="user-info">
+              <h3>John Doe</h3>
+              <p>@johndoe</p>
+            </div>
+            <div class="checkbox-container">
+              <input type="checkbox" />
+            </div>
+          </li>
+          
+          <li class="user-item">
+            <img src="https://ui-avatars.com/api/?name=Sarah+Smith&background=e91e63&color=fff" alt="Sarah Smith" />
+            <div class="user-info">
+              <h3>Sarah Smith</h3>
+              <p>@sarahsmith</p>
+            </div>
+            <div class="checkbox-container">
+              <input type="checkbox" />
+            </div>
+          </li>
+          
+          <li class="user-item">
+            <img src="https://ui-avatars.com/api/?name=Mike+Johnson&background=0f9d58&color=fff" alt="Mike Johnson" />
+            <div class="user-info">
+              <h3>Mike Johnson</h3>
+              <p>@mikejohnson</p>
+            </div>
+            <div class="checkbox-container">
+              <input type="checkbox" />
+            </div>
+          </li>
+          
+          <li class="user-item">
+            <img src="https://ui-avatars.com/api/?name=Emma+Wilson&background=673ab7&color=fff" alt="Emma Wilson" />
+            <div class="user-info">
+              <h3>Emma Wilson</h3>
+              <p>@emmawilson</p>
+            </div>
+            <div class="checkbox-container">
+              <input type="checkbox" />
+            </div>
+          </li>
+          
+          <li class="user-item">
+            <img src="https://ui-avatars.com/api/?name=David+Brown&background=f44336&color=fff" alt="David Brown" />
+            <div class="user-info">
+              <h3>David Brown</h3>
+              <p>@davidbrown</p>
+            </div>
+            <div class="checkbox-container">
+              <input type="checkbox" />
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="modal-footer">
+        <button>Create Group</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    // Modal functionality
+    const openModalBtn = document.getElementById('open-modal');
+    const closeModalBtn = document.getElementById('close-modal');
+    const modal = document.getElementById('new-group-modal');
+    
+    openModalBtn.addEventListener('click', () => {
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+    });
+    
+    closeModalBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto'; // Restore scrolling
+    });
+    
+    // Close modal when clicking outside the modal content
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.style.display === 'flex') {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    });
+    
+    // Chat switching functionality
+    const chats = document.querySelectorAll('.chat');
+    const chatHeader = document.querySelector('.chat-header h3');
+    const messagesContainer = document.querySelector('.messages');
+    
+    chats.forEach(chat => {
+      chat.addEventListener('click', () => {
+        // Remove active class from all chats
+        chats.forEach(c => c.classList.remove('active'));
+        // Add active class to clicked chat
+        chat.classList.add('active');
+        // Update chat header name
+        const name = chat.querySelector('h3').textContent;
+        chatHeader.textContent = name;
+        
+        // Clear and regenerate messages (for demo)
+        messagesContainer.innerHTML = '';
+        const messages = [
+          `Hi ${name}! How are you?`,
+          `I'm doing well, thanks!`,
+          `Did you see the new project updates?`,
+          `Not yet, what's new?`,
+          `We've got a new deadline - next Friday.`,
+          `That's sooner than expected! We should start right away.`,
+          `Agreed. Let's meet tomorrow to plan.`
+        ];
+        
+        // Alternate between sent and received messages
+        messages.forEach((msg, i) => {
+          const messageDiv = document.createElement('div');
+          messageDiv.classList.add('message');
+          messageDiv.classList.add(i % 2 === 0 ? 'received' : 'sent');
+          messageDiv.innerHTML = `${msg}<span>${formatTime(new Date())}</span>`;
+          messagesContainer.appendChild(messageDiv);
+        });
+        
+        // Scroll to bottom of messages
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      });
+    });
+    
+    // Format time as HH:MM AM/PM
+    function formatTime(date) {
+      let hours = date.getHours();
+      let minutes = date.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      return `${hours}:${minutes} ${ampm}`;
+    }
+    
+    // Send message functionality
+    const messageInput = document.querySelector('.chat-footer input');
+    const sendButton = document.querySelector('.send-button');
+    
+    function sendMessage() {
+      const message = messageInput.value.trim();
+      if (message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', 'sent');
+        messageDiv.innerHTML = `${message}<span>${formatTime(new Date())}</span>`;
+        messagesContainer.appendChild(messageDiv);
+        messageInput.value = '';
+        
+        // Scroll to bottom of messages
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        // Simulate reply after a delay
+        setTimeout(() => {
+          const replyDiv = document.createElement('div');
+          replyDiv.classList.add('message', 'received');
+          replyDiv.innerHTML = `Thanks for your message!<span>${formatTime(new Date())}</span>`;
+          messagesContainer.appendChild(replyDiv);
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }, 1000);
+      }
+    }
+    
+    sendButton.addEventListener('click', sendMessage);
+    
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
