@@ -5,178 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>WhatsApp Web Clone</title>
   <link rel="stylesheet" href="styles.css" />
-<style>.modal {
-  display: none; /* ✅ keep only this */
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 100;
-  justify-content: center;
-  align-items: center;
-}
 
-.modal-content {
-    width: 500px;
-    max-width: 90%;
-    max-height: 90vh;
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    display: flex;
-    flex-direction: column;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    border-bottom: 1px solid #ddd;
-    background: white;
-}
-
-.modal-header h2 {
-    font-size: 20px;
-    font-weight: 500;
-    color: #3b4a54;
-    margin: 0;
-}
-
-.close-btn {
-    background: transparent;
-    border: none;
-    color: #8696a0;
-    font-size: 24px;
-    cursor: pointer;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-}
-
-.close-btn:hover {
-    background: #e6e6e6;
-}
-
-.modal-search {
-    padding: 15px 20px;
-    background: white;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    justify-content: center;
-}
-
-.modal-search input {
-    width: 100%;
-    max-width: 400px;
-    padding: 10px 15px 10px 40px;
-    border: 1px solid #ddd;
-    border-radius: 25px;
-    color: #3b4a54;
-    font-size: 14px;
-    outline: none;
-    background: #f0f2f5 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="gray" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>') no-repeat 15px center;
-    background-size: 16px;
-}
-
-.modal-body {
-    overflow-y: auto;
-    flex-grow: 1;
-    padding: 10px 0;
-}
-
-.section-title {
-    padding: 8px 20px;
-    font-size: 14px;
-    color: #8696a0;
-    background: white;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.user-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.user-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.user-item:hover {
-    background: #f5f5f5;
-}
-
-.user-item img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 15px;
-}
-
-.user-info {
-    flex-grow: 1;
-}
-
-.user-info h3 {
-    font-size: 16px;
-    font-weight: 500;
-    margin: 0 0 3px 0;
-    color: #3b4a54;
-}
-
-.user-info p {
-    font-size: 13px;
-    color: #8696a0;
-    margin: 0;
-}
-
-.checkbox-container {
-    margin-left: auto;
-}
-
-.checkbox-container input {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-}
-
-.modal-footer {
-    padding: 15px 20px;
-    background: #f0f2f5;
-    text-align: right;
-    border-top: 1px solid #ddd;
-}
-
-.modal-footer button {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 24px;
-    border-radius: 18px;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.modal-footer button:hover {
-    background: #0069d9;
-}
-</style>
 </head>
 <body>
   <div class="container">
@@ -187,9 +16,10 @@
         <button id="open-modal" style="margin-left: 330px;width: 30px;height: 30px;border: 4px solid #007bff;">
           <img src="pics/icons8-plus-math-20.png" alt="Send" class="icon" />
         </button>
-        <button style="background:white;width: 30px;height: 30px;  border: 3.5px solid #007bff; right:0">
-          <img src="pics/3dotblue.png" alt="Send" class="icon" />
-        </button>
+        <button id="open-settings" style="background:white;width: 30px;height: 30px;  border: 3.5px solid #007bff; right:0">
+        <img src="pics/3dotblue.png" alt="Send" class="icon" />
+         </button>
+
       </div>
 
       <input type="text" placeholder="Search" />
@@ -298,6 +128,10 @@
     </div>
 
     <div class="modal-body">
+        <div style="margin-bottom: 15px;">
+  
+  <input id="group-name" type="text" placeholder="Enter Group name" style="width: 88%; padding: 10px; border-radius: 20px; border: 1px solid #ccc; margin-top: 5px;margin-left: 20px;">
+</div>
       <div class="section-title">Users available on Aura+</div>
       <ul class="user-list">
         <li class="user-item">
@@ -315,7 +149,111 @@
     </div>
 
     <div class="modal-footer">
-      <button id="switch-to-group">Create Group</button>
+      <button id="switch-to-group" onclick="createGroup()">Create Group</button>
+    </div>
+  </div>
+</div>
+<!-- Profile  -->
+
+<div class="modal" id="profile-mangment" >
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Settings</h2>
+      <button class="close-btn" id="close-settings-modal">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <div style="padding: 20px;">
+        <div onclick="opensettings()" id="profile-card" style="display: flex; align-items: center; background: #f9f9f9; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+  <img id="profile-img" src="pics/def.jpeg" style="width: 60px; height: 60px; border-radius: 50%; margin-right: 15px;" />
+  <div>
+    <h3 id="profile-name" style="margin: 0; font-size: 18px; color: #3b4a54;">Loading...</h3>
+    <p id="profile-username" style="margin: 2px 0 0 0; color: gray;">@username</p>
+  </div>
+        </div>
+
+        <div style="font-size: 12px; color: gray; text-transform: uppercase; margin-bottom: 8px;">Account</div>
+
+        <div style="border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+          <div onclick="openChangePasswordModal()" style="display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid #eee; cursor: pointer;">
+            <img src="pics/key.png" style="width: 24px; height: 24px; background: green; border-radius: 6px; padding: 4px; margin-right: 12px;" />
+            <span style="flex-grow: 1; font-weight: 500;">Account</span>
+          </div>
+          <div style="display: flex; align-items: center; padding: 12px 16px; cursor: pointer;">
+            <img src="pics/icons8-warning-sign-66.png" style="width: 24px; height: 24px; background: red; border-radius: 6px; padding: 4px; margin-right: 12px;" />
+            <span style="flex-grow: 1; font-weight: 500;">Logout</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+<!-- Profile 1  -->
+<!-- Settings Edit Modal -->
+<div class="modal" id="profile-management-1">
+  <div class="modal-content" style="padding: 20px;">
+    <div class="modal-header" style="border-bottom: none;">
+      <h2>Settings</h2>
+      <button class="close-btn" id="profile-management-1-close">&times;</button>
+    </div>
+    
+    <div style="background: #fff; padding: 20px; border-radius: 16px;">
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <img id="preview-img" src="pics/def.jpeg" alt="Profile" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover;">
+        <div>
+          <p style="margin: 0; font-size: 15px;">Edit your name and add an optional profile picture</p>
+          <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="submitProfileUpdatePhoto(event)" />
+
+          <button onclick="document.getElementById('imageUpload').click()" style="background: none; border: none; color: #007bff; font-weight: 500; padding: 0; cursor: pointer;">Edit</button>
+        </div>
+      </div>
+
+      <div style="margin-top: 25px;">
+        <input id="nameInput" type="text" placeholder="    Enter your name" style=" width: 100%;
+    max-width: 400px;
+    padding: 10px 15px 10px 40px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    color: #3b4a54;
+    font-size: 14px;
+    outline: none;">
+      </div>
+
+      <div style="margin-top: 25px;">
+        <button id="confirmProfileUpdate" style="width: 100%; padding: 12px 0; border: none; border-radius: 12px; background: #007bff; color: white; font-size: 16px; font-weight: 500; cursor: pointer;">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Change Password Modal -->
+<div class="modal" id="change-password-modal">
+  <div class="modal-content" style="padding: 20px;">
+    <div class="modal-header" style="border-bottom: none;">
+      <h2>Change your Password</h2>
+      <button class="close-btn" id="close-password-modal">&times;</button>
+    </div>
+
+    <p style="margin-top: -10px; font-size: 14px;">Make sure your password is strong and unique.</p>
+
+    <div style="margin-top: 20px;">
+      <label style="font-weight: bold;">Password</label>
+      <input type="password" id="old-password" placeholder="Enter your old password" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc;">
+    </div>
+
+    <div style="margin-top: 15px;">
+      <label style="font-weight: bold;">New Password</label>
+      <input type="password" id="new-password" placeholder="Enter new password" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc;">
+    </div>
+
+    <div style="margin-top: 15px;">
+      <label style="font-weight: bold;">Confirm Password</label>
+      <input type="password" id="confirm-password" placeholder="Confirm new password" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc;">
+    </div>
+
+    <div style="margin-top: 25px;">
+      <button id="submit-password-change" style="width: 100%; padding: 12px 0; border: none; border-radius: 12px; background: #007bff; color: white; font-size: 16px; font-weight: 500; cursor: pointer;">Change Password</button>
     </div>
   </div>
 </div>
@@ -324,8 +262,26 @@
 
 
 
+
+
   <!-- JavaScript -->
   <script>
+
+function openChangePasswordModal() {
+  document.getElementById("change-password-modal").style.display = "flex";
+}   
+// Close modal change password
+document.getElementById("close-password-modal").addEventListener("click", function () {
+  document.getElementById("change-password-modal").style.display = "none";
+});
+
+  function opensettings() {
+     document.getElementById('profile-management-1').style.display='flex';
+     loadProfileCard()
+     
+     //document.getElementById("profile-mangment").style.display = "none";
+    }
+
     function openChat(name) {
       document.getElementById("chat-name").textContent = name;
     }
@@ -354,26 +310,94 @@
       document.getElementById("new-group-modal").style.display = "none";
     });
 
+
+
+
+
+document.getElementById("open-settings").addEventListener("click", () => {
+  document.getElementById("profile-mangment").style.display = "flex";
+  loadProfileCard();
+});
+
+
+
+
+    document.getElementById("close-settings-modal").addEventListener("click", () => {
+      document.getElementById("profile-mangment").style.display = "none";
+    });
+
+
+
+
     // Optional: Close modal if clicked outside modal content
-    window.onclick = function (event) {
-      const modal = document.getElementById("new-group-modal");
-      if (event.target == modal) {
-        modal.style.display = "none";
-         document.getElementById("new-contact-modal").style.display = "none";
+   window.onclick = function (event) {
+  const modals = document.querySelectorAll(".modal");
+  modals.forEach(modal => {
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  });
+};
 
-      }
-    };
-
-
+document.getElementById("profile-management-1-close").addEventListener("click", function () {
+  document.getElementById("profile-management-1").style.display = "none";
+});
+document.getElementById("submit-password-change").addEventListener("click", function () {
+  changePassword();
+});
   </script>
 
 
 
 <script>
 const API_URL_CHATS = "http://192.168.100.196:8888/get_user_chats";
+async function changePassword() {
+  const username = sessionStorage.getItem("username"); // Ensure username is saved in session
+  const oldPassword = document.getElementById("old-password").value.trim();
+  const newPassword = document.getElementById("new-password").value.trim();
+  const confirmPassword = document.getElementById("confirm-password").value.trim();
 
+  // ✅ Basic validation
+  if (!oldPassword || !newPassword || !confirmPassword) {
+    alert("⚠️ Please fill in all fields.");
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    alert("❌ New password and confirm password do not match.");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://192.168.100.196:8888/update_password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username,
+        old_password: oldPassword,
+        new_password: newPassword
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) throw new Error(result.detail || "Failed to update password.");
+
+    alert("✅ Password changed successfully!");
+    document.getElementById("change-password-modal").style.display = "none";
+
+    // Optionally clear fields
+    document.getElementById("old-password").value = "";
+    document.getElementById("new-password").value = "";
+    document.getElementById("confirm-password").value = "";
+
+  } catch (error) {
+    console.error("❌ Error changing password:", error);
+    alert("Error: " + error.message);
+  }
+}
 async function loadChats() {
-  const username = "atif"; // or use: sessionStorage.getItem("username");
+  const username = sessionStorage.getItem("username"); // or use: sessionStorage.getItem("username");
 
   if (!username) {
     alert("⚠️ User not logged in.");
@@ -436,6 +460,164 @@ async function loadChats() {
     alert("Could not load chats.");
   }
 }
+async function loadProfileCard() {
+
+  const username = sessionStorage.getItem("username") || "atif"; // fallback for testing
+
+  try {
+    const res = await fetch("http://192.168.100.196:8888/get-user-photo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username })
+    });
+
+    if (!res.ok) throw new Error("User not found or no image");
+
+    const data = await res.json();
+
+    // Update profile name and username
+    sessionStorage.setItem("name", data.name);
+    document.getElementById("profile-name").textContent = data.name;
+    document.getElementById("profile-username").textContent = `@${data.username}`;
+
+    // If profile image exists, show it
+    if (data.profile_image) {
+      document.getElementById("profile-img").src = `data:image/png;base64,${data.profile_image}`;
+       sessionStorage.setItem("profile_image", data.profile_image);
+    }
+
+  } catch (err) {
+    console.warn("⚠️ Could not load profile info:", err);
+    document.getElementById("profile-name").textContent = username;
+    document.getElementById("profile-username").textContent = `@${username}`;
+  }
+}
+async function submitProfileUpdatePhoto(event) {
+  const username = sessionStorage.getItem("username") || "atif"; // replace fallback if needed
+  const name = sessionStorage.getItem("name");
+ 
+  const file = event.target.files[0];
+
+  if (!name) {
+    
+    return;
+  }
+
+  if (!file) {
+    alert("Please select an image to upload.");
+    return;
+  }
+
+  try {
+    const base64Image = await toBase64(file);
+
+    const res = await fetch("http://192.168.100.196:8888/update-user-photo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username,
+        name,
+        profile_image: base64Image.split(",")[1] // remove prefix
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Update failed");
+
+    alert("✅ Profile updated successfully.");
+    closeEditProfileModal();
+    loadProfileCard(); // reload updated info
+
+  } catch (err) {
+    console.error("❌ Error updating profile:", err);
+    alert("Failed to update profile. Try again.");
+  }
+}
+
+async function handleContactClick(contactUsername) {
+  const username = sessionStorage.getItem("username");
+
+  if (!username || !contactUsername || username === contactUsername) {
+    alert("❌ Invalid contact selection.");
+    return;
+  }
+
+  try {
+    const res = await fetch("http://192.168.100.196:8888/create_or_get_chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username1: username,
+        username2: contactUsername
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.detail || "Failed to create or get chat");
+
+    alert(`✅ Chat ${data.status} (ID: ${data.chat_id})`);
+    loadChats(); // Refresh the chat list
+
+  } catch (err) {
+    console.error("❌ Chat creation error:", err);
+    alert("Error creating or getting chat: " + err.message);
+  }
+}
+
+async function createGroup() {
+  const creator = sessionStorage.getItem("username");
+  const groupName = document.getElementById("group-name").value.trim();
+
+  // Gather selected users
+  const selectedCheckboxes = document.querySelectorAll('#new-group-modal .user-checkbox:checked');
+  const selectedUsernames = Array.from(selectedCheckboxes).map(cb => cb.dataset.username);
+
+  // Validation
+  if (!groupName) {
+    alert("⚠️ Please enter a group name.");
+    return;
+  }
+
+  if (selectedUsernames.length < 2 || selectedUsernames.length > 5) {
+    alert("❌ Group must have between 3 and 6 total members including you.");
+    return;
+  }
+
+  try {
+    const res = await fetch("http://192.168.100.196:8888/create_group", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        creator_username: creator,
+        group_name: groupName,
+        members: selectedUsernames
+      })
+    });
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.detail || "Failed to create group");
+
+    alert("✅ Group created successfully!");
+    document.getElementById("new-group-modal").style.display = "none";
+    loadChats(); // Refresh chat list
+
+  } catch (err) {
+    console.error("❌ Error creating group:", err);
+    alert("Error: " + err.message);
+  }
+}
+
+// Convert image file to base64 string
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+    reader.readAsDataURL(file);
+  });
+}
+
 
 // Load on window ready
 window.onload = loadChats;
@@ -444,7 +626,7 @@ window.onload = loadChats;
 const API_URL_USERS = "http://192.168.100.196:8888/get-users";
 
 async function loadContacts() {
-  const username = "atif"; // Replace with sessionStorage.getItem("username") if needed
+  const username = sessionStorage.getItem("username"); // Replace with sessionStorage.getItem("username") if needed
 
   try {
     const res = await fetch(API_URL_USERS, {
@@ -476,8 +658,8 @@ async function loadContacts() {
           <p>@${user.username}</p>
         </div>
         <div class="checkbox-container">
-          <input type="checkbox" />
-        </div>
+    <input type="checkbox" onchange="handleContactClick('${user.username}')" />
+  </div>
       `;
 
       userList.appendChild(li);
@@ -492,7 +674,7 @@ async function loadContacts() {
 </script>
 <script>
 async function loadGroupContacts() {
-  const username = "atif"; // Or use sessionStorage.getItem("username")
+  const username = sessionStorage.getItem("username"); // Or use sessionStorage.getItem("username")
 
   try {
     const res = await fetch("http://192.168.100.196:8888/get-users", {
@@ -536,6 +718,68 @@ async function loadGroupContacts() {
     alert("Could not load group contacts.");
   }
 }
+</script>
+<script>
+let selectedImageBase64 = null; // Global variable
+
+// When file is selected
+document.getElementById("imageUpload").addEventListener("change", async function (event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const base64 = await toBase64(file);
+  selectedImageBase64 = base64.split(",")[1]; // remove data:image/png;base64, part
+
+  // Preview the image
+  document.getElementById("preview-img").src = base64;
+});
+
+// Convert file to base64
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Confirm click handler
+document.getElementById("confirmProfileUpdate").addEventListener("click", async function () {
+  const username = sessionStorage.getItem("username") || "guest";
+  let name = document.getElementById("nameInput").value.trim();
+
+  // Use old name from session if input is empty
+  if (!name) name = sessionStorage.getItem("name") || username;
+
+  try {
+    const payload = {
+      username,
+      name,
+      profile_image: selectedImageBase64 // can be null
+    };
+
+    const res = await fetch("http://192.168.100.196:8888/update-user-photo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Failed to update profile");
+
+    alert("✅ Profile updated.");
+    sessionStorage.setItem("name", name);
+    if (selectedImageBase64) sessionStorage.setItem("profile_image", selectedImageBase64);
+
+    loadProfileCard(); // reload updated profile
+    document.getElementById("profile-management-1").style.display = "none";
+
+  } catch (err) {
+    console.error("❌ Update error:", err);
+    alert("Error: " + err.message);
+  }
+});
 </script>
 
 
