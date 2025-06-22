@@ -53,7 +53,7 @@
      <div class="chat-header">
   <img src="pics/def.jpeg" alt="User" />
   <div class="user-details">
-    <h3 id="chat-name">Umer</h3>
+    <h3 id="chat-name">None</h3>
     <div id="chat-status">
       <span class="status-dot">●</span>
       <span class="status-text">Checking...</span>
@@ -72,17 +72,21 @@
         </div>
       </div>
       <div class="chat-footer">
-        <button style="background:white;">
-          <img src="pics/ios-30 (1).png" alt="Send" class="icon" />
-        </button>
-        <input type="text" placeholder="Type a message..." />
-        <button style="background:rgba(255, 255, 255, 0);">
-          <img src="pics/icons8-microphone-30.png" alt="Send" class="icon" />
-        </button>
-        <button>
-          <img src="pics/arrowup.png" alt="Send" class="icon" />
-        </button>
-      </div>
+  <button style="background:white;">
+    <img src="pics/ios-30 (1).png" alt="Emoji" class="icon" />
+  </button>
+
+  <input type="text" id="message-input" placeholder="Type a message..." />
+
+  <button style="background:rgba(255, 255, 255, 0);">
+    <img src="pics/icons8-microphone-30.png" alt="Mic" class="icon" />
+  </button>
+
+  <button id="send-message-button">
+    <img src="pics/arrowup.png" alt="Send" class="icon" />
+  </button>
+</div>
+
     </div>
   </div>
 
@@ -290,17 +294,51 @@ document.getElementById("close-password-modal").addEventListener("click", functi
     }
 
     function openChat(name,chatid) {
-        loadChatMessages(3,sessionStorage.getItem("user_id"));
+        currentChatId = chatid;
+        loadChatMessages(chatid,sessionStorage.getItem("user_id"));
+        
+        
 
       document.getElementById("chat-name").textContent = name;
       const chatDiv = Array.from(document.getElementsByClassName("chat"))
     .find(div => div.querySelector("h3")?.textContent === name);
 
     if (chatDiv) {
+        console.log("checking online and socket div");
     const otherUsername = chatDiv.dataset.username;
-    updateHeaderStatus(otherUsername);
+         updateHeaderStatus(otherUsername);
+    if (chatSocket) chatSocket.close();
+
+  chatSocket = new WebSocket("ws://192.168.100.196:8888/ws/chat");
+
+  chatSocket.onopen = () => console.log("✅ WebSocket connected");
+
+  chatSocket.onmessage = (event) => {
+    const msg = JSON.parse(event.data);
+    if (msg.chat_id !== currentChatId) return;
+
+    const container = document.querySelector(".messages");
+    const isSent = msg.sender_id === parseInt(sessionStorage.getItem("user_id"));
+    const time = new Date(msg.time_stamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    container.innerHTML += `
+      <div class="message ${isSent ? "sent" : "received"}">
+        ${msg.content}<span>${time}</span>
+      </div>
+    `;
+  };
+
+  chatSocket.onerror = (e) => console.error("WebSocket error", e);
+  chatSocket.onclose = () => console.log("WebSocket closed");
+}
   }
-    }
+
+
+
+
+
+  
+    
 
     // Modal Show/Hide Logic
   document.getElementById("open-modal").addEventListener("click", function () {
@@ -341,9 +379,34 @@ document.getElementById("open-settings").addEventListener("click", () => {
     document.getElementById("close-settings-modal").addEventListener("click", () => {
       document.getElementById("profile-mangment").style.display = "none";
     });
-//Call it when tab/window is closed
-window.addEventListener("beforeunload", async function () {
-  await updateOnlineStatus(false); // mark offline
+//Call it when tab/window is closedlet isClosing = true;
+
+window.addEventListener("beforeunload", (e) => {
+  if (isClosing) {
+    const username = sessionStorage.getItem("username");
+    if (username) {
+      const url = "http://192.168.100.196:8888/update_status";
+      const data = JSON.stringify({ username, is_online: false });
+
+      navigator.sendBeacon(url, new Blob([data], { type: "application/json" }));
+    }
+  }
+});
+
+// Set to false if page is being reloaded or navigated away
+window.addEventListener("click", () => isClosing = false);
+window.addEventListener("keydown", () => isClosing = false);
+window.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    isClosing = true;
+  }
+});
+
+// Optional: detect reload
+window.addEventListener("beforeunload", () => {
+  if (performance.getEntriesByType("navigation")[0].type === "reload") {
+    isClosing = false;
+  }
 });
 
 
@@ -448,6 +511,7 @@ async function loadChats() {
       chatDiv.className = "chat";
       const chatId = parseInt(chat.chat_id);
       chatDiv.onclick = () => openChat(chat.with_username,chatId);
+      
        // Profile picture
       const imgSrc = chat.profile_picture_base64
         ? chat.profile_picture_base64
@@ -634,6 +698,7 @@ async function createGroup() {
 async function updateOnlineStatus(isOnline) {
   const username = sessionStorage.getItem("username");
   if (!username) return;
+  console.log(isOnline);
 
   try {
     await fetch("http://192.168.100.196:8888/update-online-status", {
@@ -656,13 +721,14 @@ async function updateHeaderStatus(username) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username })
     });
+    
 
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || "Failed");
 
     const statusText = data.is_online ? "Online" : "Offline";
     const statusColor = data.is_online ? "green" : "gray";
-
+    console.log("Header status check"+data.is_online);
     // Update dot color
     const dot = document.querySelector("#chat-status .status-dot");
     if (dot) dot.style.color = statusColor;
@@ -868,6 +934,7 @@ document.getElementById("confirmProfileUpdate").addEventListener("click", async 
 <script>
 async function loadChatMessages(chatId, currentUserId) {
   try {
+    console.log(currentUserId+"current");
     const res = await fetch(`http://192.168.100.196:8888/messages/${chatId}`);
     if (!res.ok) throw new Error("Network response was not ok");
 
@@ -884,7 +951,10 @@ async function loadChatMessages(chatId, currentUserId) {
     let allMessagesHTML = "";
 
     messages.forEach(msg => {
-      const isSent = msg.sender_id === currentUserId;
+      const isSent = parseInt(msg.sender_id) === parseInt(currentUserId);
+
+      console.log(msg.sender_id+"sender id"+isSent);
+      
       const time = new Date(msg.time_stamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
       if (msg.message_type === "text") {
@@ -936,6 +1006,43 @@ function formatTime(isoString) {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 </script>
+
+
+
+
+
+<script>let chatSocket = null;
+let currentChatId = null; // track current chat
+
+document.getElementById("send-message-button").addEventListener("click", sendMessage);
+
+function sendMessage() {
+  const input = document.getElementById("message-input");
+  const content = input.value.trim();
+  const senderId = parseInt(sessionStorage.getItem("user_id"));
+
+  if (!content) return;
+
+  if (!chatSocket || chatSocket.readyState !== WebSocket.OPEN) {
+    alert("❌ WebSocket not connected.");
+    return;
+  }
+
+  const messageData = {
+    chat_id: currentChatId,
+    sender_id: senderId,
+    content: content,
+    media_url: "",
+    message_type: "text"
+  };
+
+  chatSocket.send(JSON.stringify(messageData));
+  input.value = ""; // clear input after sending
+}
+</script>
+
+
+
 
 </body>
 </html>
