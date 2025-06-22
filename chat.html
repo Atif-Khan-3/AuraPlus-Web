@@ -50,10 +50,17 @@
 
     <!-- Chat Window -->
     <div class="chat-window">
-      <div class="chat-header">
-        <img src="pics/def.jpeg" alt="User" />
-        <h3 id="chat-name">Umer</h3>
-      </div>
+     <div class="chat-header">
+  <img src="pics/def.jpeg" alt="User" />
+  <div class="user-details">
+    <h3 id="chat-name">Umer</h3>
+    <div id="chat-status">
+      <span class="status-dot">●</span>
+      <span class="status-text">Checking...</span>
+    </div>
+  </div>
+</div>
+
       <div class="messages">
         <div class="message sent">Hello! how are you?<span>12:34</span></div>
         <div class="message received">I'm good, thanks!<span>12:35</span></div>
@@ -284,6 +291,13 @@ document.getElementById("close-password-modal").addEventListener("click", functi
 
     function openChat(name) {
       document.getElementById("chat-name").textContent = name;
+      const chatDiv = Array.from(document.getElementsByClassName("chat"))
+    .find(div => div.querySelector("h3")?.textContent === name);
+
+    if (chatDiv) {
+    const otherUsername = chatDiv.dataset.username;
+    updateHeaderStatus(otherUsername);
+  }
     }
 
     // Modal Show/Hide Logic
@@ -325,8 +339,10 @@ document.getElementById("open-settings").addEventListener("click", () => {
     document.getElementById("close-settings-modal").addEventListener("click", () => {
       document.getElementById("profile-mangment").style.display = "none";
     });
-
-
+//Call it when tab/window is closed
+window.addEventListener("beforeunload", async function () {
+  await updateOnlineStatus(false); // mark offline
+});
 
 
     // Optional: Close modal if clicked outside modal content
@@ -428,7 +444,7 @@ async function loadChats() {
     chats.forEach(chat => {
       const chatDiv = document.createElement("div");
       chatDiv.className = "chat";
-      chatDiv.onclick = () => openChat(chat.name || chat.with_username || "Unknown");
+      chatDiv.onclick = () => openChat(chat.with_username);
 
       // Profile picture
       const imgSrc = chat.profile_picture_base64
@@ -444,13 +460,18 @@ async function loadChats() {
 
       // Chat box HTML
       chatDiv.innerHTML = `
-        <img src="${imgSrc}" alt="User" />
-        <div>
-          <h3>${chat.name}</h3>
-          <p>${chat.last_message || ''}</p>
-        </div>
-        <span>${timeText}</span>
-      `;
+  <img src="${imgSrc}" alt="User" />
+  <div>
+    <h3>${chat.name}</h3>
+    <p>${chat.last_message || ''}</p>
+  </div>
+  <span>${timeText}</span>
+`;
+
+    chatDiv.dataset.chatId = chat.chat_id;
+    chatDiv.dataset.userId = chat.with_user_id;
+    chatDiv.dataset.username = chat.with_username;
+
 
       chatList.appendChild(chatDiv);
     });
@@ -460,6 +481,7 @@ async function loadChats() {
     alert("Could not load chats.");
   }
 }
+
 async function loadProfileCard() {
 
   const username = sessionStorage.getItem("username") || "atif"; // fallback for testing
@@ -607,6 +629,51 @@ async function createGroup() {
     alert("Error: " + err.message);
   }
 }
+async function updateOnlineStatus(isOnline) {
+  const username = sessionStorage.getItem("username");
+  if (!username) return;
+
+  try {
+    await fetch("http://192.168.100.196:8888/update-online-status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: username,
+        is_online: isOnline
+      })
+    });
+    console.log(`ℹ️ Status updated to ${isOnline ? 'online' : 'offline'}`);
+  } catch (err) {
+    console.warn("⚠️ Could not update online status:", err);
+  }
+}
+async function updateHeaderStatus(username) {
+  try {
+    const res = await fetch("http://192.168.100.196:8888/get-online-status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Failed");
+
+    const statusText = data.is_online ? "Online" : "Offline";
+    const statusColor = data.is_online ? "green" : "gray";
+
+    // Update dot color
+    const dot = document.querySelector("#chat-status .status-dot");
+    if (dot) dot.style.color = statusColor;
+
+    // Update status text
+    const text = document.querySelector("#chat-status .status-text");
+    if (text) text.textContent = statusText;
+
+  } catch (err) {
+    console.error("❌ Cannot fetch online status:", err);
+  }
+}
+
 
 // Convert image file to base64 string
 function toBase64(file) {

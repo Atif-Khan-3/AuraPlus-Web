@@ -415,3 +415,44 @@ body {
 .modal-footer button:hover {
     background: #0069d9;
 }
+.chat-header {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #ccc;
+}
+
+.chat-header img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+#chat-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#chat-status {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: gray;
+  gap: 5px;
+}
+
+.status-dot {
+  font-size: 12px;
+}
+
+.status-text {
+  font-size: 14px;
+}

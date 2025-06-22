@@ -88,10 +88,33 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     const result = await response.json();
 
     if (response.ok) {
-      localStorage.setItem("token", result.access_token); // Store JWT token
-      sessionStorage.setItem("username", username); // Store username in session
-      alert("✅ Login successful!");
-      window.location.href = "chat.html"; // Or dashboard.html
+      // Store JWT token
+      localStorage.setItem("token", result.access_token);
+
+      // 🔁 Fetch the user's profile using the token
+      const profileRes = await fetch("http://192.168.100.196:8888/profile", {
+        method: "GET",
+        headers: {
+          "Authorization": "Bearer " + result.access_token
+        }
+      });
+
+      const profileData = await profileRes.json();
+
+      if (profileRes.ok) {
+        const user = profileData.user;
+        // Save username, id, and name to sessionStorage
+        sessionStorage.setItem("username", user.username);
+        sessionStorage.setItem("user_id", user.id);
+        console.log(sessionStorage.getItem("user_id"));
+       
+
+        alert("✅ Login successful!");
+        window.location.href = "chat.html";
+        await updateOnlineStatus(true);
+      } else {
+        alert("❌ Failed to fetch user profile.");
+      }
     } else {
       alert("❌ Login failed: " + (result.detail || "Invalid credentials"));
     }
@@ -100,6 +123,31 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     console.error(error);
   }
 });
+
+async function updateOnlineStatus(isOnline) {
+  const username = sessionStorage.getItem("username");
+  if (!username) return;
+
+  try {
+    await fetch("http://192.168.100.196:8888/update-online-status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: username,
+        is_online: isOnline
+      })
+    });
+  } catch (err) {
+    console.warn("⚠️ Could not update online status:", err);
+  }
+}
+
+
+
+
+
+
+
 </script>
 ///forget password
 
