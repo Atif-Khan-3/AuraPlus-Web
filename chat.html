@@ -289,7 +289,9 @@ document.getElementById("close-password-modal").addEventListener("click", functi
      //document.getElementById("profile-mangment").style.display = "none";
     }
 
-    function openChat(name) {
+    function openChat(name,chatid) {
+        loadChatMessages(3,sessionStorage.getItem("user_id"));
+
       document.getElementById("chat-name").textContent = name;
       const chatDiv = Array.from(document.getElementsByClassName("chat"))
     .find(div => div.querySelector("h3")?.textContent === name);
@@ -444,9 +446,9 @@ async function loadChats() {
     chats.forEach(chat => {
       const chatDiv = document.createElement("div");
       chatDiv.className = "chat";
-      chatDiv.onclick = () => openChat(chat.with_username);
-
-      // Profile picture
+      const chatId = parseInt(chat.chat_id);
+      chatDiv.onclick = () => openChat(chat.with_username,chatId);
+       // Profile picture
       const imgSrc = chat.profile_picture_base64
         ? chat.profile_picture_base64
         : 'pics/def.jpeg';
@@ -471,7 +473,7 @@ async function loadChats() {
     chatDiv.dataset.chatId = chat.chat_id;
     chatDiv.dataset.userId = chat.with_user_id;
     chatDiv.dataset.username = chat.with_username;
-
+    
 
       chatList.appendChild(chatDiv);
     });
@@ -738,6 +740,20 @@ async function loadContacts() {
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </script>
 <script>
 async function loadGroupContacts() {
@@ -849,6 +865,77 @@ document.getElementById("confirmProfileUpdate").addEventListener("click", async 
 });
 </script>
 
+<script>
+async function loadChatMessages(chatId, currentUserId) {
+  try {
+    const res = await fetch(`http://192.168.100.196:8888/messages/${chatId}`);
+    if (!res.ok) throw new Error("Network response was not ok");
+
+    const messages = await res.json();
+
+    const container = document.querySelector(".messages");
+    container.innerHTML = ""; // Clear old messages
+
+    if (messages.length === 0) {
+      console.log("ℹ️ No messages found for this chat.");
+      return; // Optionally stop further processing
+    }
+
+    let allMessagesHTML = "";
+
+    messages.forEach(msg => {
+      const isSent = msg.sender_id === currentUserId;
+      const time = new Date(msg.time_stamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      if (msg.message_type === "text") {
+        allMessagesHTML += `
+          <div class="message ${isSent ? "sent" : "received"}">
+            ${escapeHtml(msg.content)}<span>${time}</span>
+          </div>
+        `;
+      } else if (msg.message_type === "image") {
+        allMessagesHTML += `
+          <div class="media ${isSent ? "sent" : "received"}">
+            <img src="${msg.media_url}" alt="Image" />
+            <span>${time}</span>
+          </div>
+        `;
+      } else if (msg.message_type === "audio") {
+        allMessagesHTML += `
+          <div class="media ${isSent ? "sent" : "received"}">
+            <audio controls>
+              <source src="${msg.media_url}" type="audio/mpeg" />
+            </audio>
+            <span>${time}</span>
+          </div>
+        `;
+      }
+    });
+
+    container.innerHTML = allMessagesHTML;
+
+  } catch (err) {
+    console.error("❌ Failed to load messages:", err);
+  }
+}
+
+// Escape helper for safety
+function escapeHtml(text) {
+  return text.replace(/[&<>"']/g, m => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[m]);
+}
+
+// Helper to convert ISO time to readable time
+function formatTime(isoString) {
+  const date = new Date(isoString);
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+</script>
 
 </body>
 </html>
