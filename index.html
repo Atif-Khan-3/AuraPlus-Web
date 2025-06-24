@@ -77,7 +77,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   const password = document.getElementById('password').value;
 
   try {
-    const response = await fetch("http://192.168.100.196:8888/login/", {
+    const response = await fetch("http://192.168.136.106:8888/login/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -92,7 +92,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
       localStorage.setItem("token", result.access_token);
 
       // 🔁 Fetch the user's profile using the token
-      const profileRes = await fetch("http://192.168.100.196:8888/profile", {
+      const profileRes = await fetch("http://192.168.136.106:8888/profile", {
         method: "GET",
         headers: {
           "Authorization": "Bearer " + result.access_token
@@ -129,7 +129,7 @@ async function updateOnlineStatus(isOnline) {
   if (!username) return;
 
   try {
-    await fetch("http://192.168.100.196:8888/update-online-status", {
+    await fetch("http://192.168.136.106:8888/update-online-status", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
