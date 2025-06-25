@@ -303,23 +303,54 @@ document.getElementById("close-password-modal").addEventListener("click", functi
      
      //document.getElementById("profile-mangment").style.display = "none";
     }
+let statusInterval = null;
 
-    function openChat(name,chatid) {
-        currentChatId = chatid;
-        currentGroupId = null; 
-        loadChatMessages(chatid,sessionStorage.getItem("user_id"));
-        
-        
+function openChat(name, chatid) {
+  currentChatId = chatid;
+  currentGroupId = null;
 
-      document.getElementById("chat-name").textContent = name;
-      const chatDiv = Array.from(document.getElementsByClassName("chat"))
-    .find(div => div.querySelector("h3")?.textContent === name);
+  document.getElementById("chat-name").textContent = name;
+  loadChatMessages(chatid, sessionStorage.getItem("user_id"));
 
-    if (chatDiv) {
-        console.log("checking online and socket div");
-    const otherUsername = chatDiv.dataset.username;
-         updateHeaderStatus(otherUsername);
-    if (chatSocket) chatSocket.close();
+  // Prevent adding multiple input listeners
+  const inputBox = document.getElementById("message-input");
+  inputBox.removeEventListener("input", inputBox._listener);
+  inputBox._listener = () => {
+    updateTypingStatus(currentChatId, sessionStorage.getItem("user_id"), true);
+
+    clearTimeout(window.typingTimeout);
+    window.typingTimeout = setTimeout(() => {
+      updateTypingStatus(currentChatId, sessionStorage.getItem("user_id"), false);
+    }, 2000);
+  };
+  inputBox.addEventListener("input", inputBox._listener);
+
+  // Try to find the corresponding chat div
+ const chatDiv = Array.from(document.getElementsByClassName("chat"))
+  .find(div => div.dataset.username === name);
+
+  if (!chatDiv) {
+    console.warn(`⚠️ chatDiv not found for name: ${name}`);
+    return;
+  }
+
+  const otherUsername = chatDiv.dataset.username;
+  if (!otherUsername) {
+    console.warn("⚠️ No data-username on chatDiv");
+    return;
+  }
+
+  console.log("✅ Checking online status for", otherUsername);
+
+  // Clear previous interval
+  if (statusInterval) clearInterval(statusInterval);
+  statusInterval = setInterval(() => {
+    updateHeaderStatus(otherUsername);
+  }, 2000);
+  updateHeaderStatus(otherUsername);
+
+  // Close previous socket if open
+  if (chatSocket) chatSocket.close();
 
   chatSocket = new WebSocket("ws://192.168.136.106:8888/ws/chat");
 
@@ -330,18 +361,12 @@ document.getElementById("close-password-modal").addEventListener("click", functi
     if (msg.chat_id !== currentChatId) return;
 
     const container = document.querySelector(".messages");
-    const isSent = msg.sender_id === parseInt(sessionStorage.getItem("user_id"));
-    const time = new Date(msg.time_stamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-   container.innerHTML += renderSingleMessage(msg, sessionStorage.getItem("user_id"));
-
+    container.innerHTML += renderSingleMessage(msg, sessionStorage.getItem("user_id"));
   };
 
-  chatSocket.onerror = (e) => console.error("WebSocket error", e);
+  chatSocket.onerror = (e) => console.error("❌ WebSocket error", e);
   chatSocket.onclose = () => console.log("WebSocket closed");
 }
-  }
-
 
 
 
@@ -497,7 +522,9 @@ async function changePassword() {
 
 
 async function loadChats() {
+
   const username = sessionStorage.getItem("username");
+  console.log(decrypt("RFTtsdBJPf0b3J3d/d0Bjw=="));
 
   if (!username) {
     alert("⚠️ User not logged in.");
@@ -530,21 +557,31 @@ async function loadChats() {
         chatDiv.onclick = () => openChat(chat.with_username, chatId); // 👈 1-on-1 openChat
 
         const imgSrc = chat.profile_picture_base64 || 'pics/def.jpeg';
-
+        
         let timeText = "";
         if (chat.last_message_time) {
           const dt = new Date(chat.last_message_time);
           timeText = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
 
+       let lastMsg;
+
+      if (chat.last_message === "Media") {
+      lastMsg = "Media"; // or just `chat.last_message` if you want raw
+      } else 
+      {
+       lastMsg = decrypt(chat.last_message) || ""; // safely decrypt
+      }
+
         chatDiv.innerHTML = `
-          <img src="${imgSrc}" alt="User" />
-          <div>
-            <h3>${chat.name}</h3>
-            <p>${chat.last_message || ''}</p>
-          </div>
-          <span>${timeText}</span>
-        `;
+        <img src="${imgSrc}" alt="User" />
+        <div>
+        <h3>${chat.name}</h3>
+        <p>${lastMsg}</p>
+        </div>
+        <span>${timeText}</span>
+`;
+
 
         chatDiv.dataset.chatId = chat.chat_id;
         chatDiv.dataset.userId = chat.with_user_id;
@@ -553,6 +590,7 @@ async function loadChats() {
         chatList.appendChild(chatDiv);
       });
     }
+    console.log("simple chats");
 
     // === 2. Fetch group chats ===
     const groupRes = await fetch("http://192.168.136.106:8888/get_user_groups", {
@@ -579,17 +617,28 @@ async function loadChats() {
           const dt = new Date(group.last_time);
           timeText = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
+        let lastMsg1;
+
+        if (group.last_message === "Media")
+        {
+          lastMsg1="Media";
+
+        }
+        else 
+      {
+       lastMsg1 = decrypt(group.last_message) || ""; // safely decrypt
+      }
+        
 
         groupDiv.innerHTML = `
           <img src="pics/def.jpeg" alt="Group" />
           <div>
             <h3>${group.group_name}</h3>
-            <p>${group.last_message || ''}</p>
+            <p>${lastMsg1 || ''}</p>
           </div>
           <span>${timeText}</span>
         `;
-        console.log("check header update");
-
+        
         groupDiv.dataset.groupId = group.group_id;
         groupDiv.dataset.groupName = group.group_name;
 
@@ -781,18 +830,40 @@ async function updateHeaderStatus(username) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username })
     });
-    
 
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || "Failed");
+    
 
-    const statusText = data.is_online ? "Online" : "Offline";
-    const statusColor = data.is_online ? "green" : "gray";
-    console.log("Header status check"+data.is_online);
+    let statusText = data.is_online ? "Online" : "Offline";
+    let statusColor = data.is_online ? "green" : "gray";
+    console.log("Header status check " + data.is_online);
+
+    // If online, check typing status in a nested try block
+    if (data.is_online) {
+      try {
+        console.log("Checking typing status " + currentChatId + " " + username);
+
+        const typingRes = await fetch(`http://192.168.136.106:8888/typing-status/${currentChatId}/${username}`);
+
+        const typingData = await typingRes.json();
+
+        if (typingRes.ok && typingData.is_typing) {
+          statusText = "Typing...";
+          statusColor = "blue";
+        }
+
+      } catch (typingErr) {
+        console.error("❌ Typing status error:", typingErr);
+      }
+    }
+
     // Update dot color
     const dot = document.querySelector("#chat-status .status-dot");
-    if (dot) dot.style.color = statusColor;
-    if (dot) dot.style.display = "inline";
+    if (dot) {
+      dot.style.color = statusColor;
+      dot.style.display = "inline";
+    }
 
     // Update status text
     const text = document.querySelector("#chat-status .status-text");
@@ -802,6 +873,7 @@ async function updateHeaderStatus(username) {
     console.error("❌ Cannot fetch online status:", err);
   }
 }
+
 
 
 
@@ -828,6 +900,36 @@ console.log("open Group chat");
 
   openGroupChatSocket(groupId); // Connect group WebSocket
 }
+
+async function updateTypingStatus(chatId, userId, isTyping) {
+  try {
+    console.log("Updating status"+isTyping);
+    const res = await fetch("http://192.168.136.106:8888/update-typing-status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        user_id: userId,
+        is_typing: isTyping
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.detail || "Failed to update typing status");
+
+    console.log("✅ Typing status updated:", data.message);
+  } catch (err) {
+    console.error("❌ Error updating typing status:", err);
+  }
+}
+
+
+
+
+
+
+
 
 // Convert image file to base64 string
 function toBase64(file) {
@@ -1034,11 +1136,14 @@ document.getElementById("confirmProfileUpdate").addEventListener("click", async 
       });
 
       let html = "";
+       //renderSingleMessage(msg,currentUserId);
 
       if (msg.message_type === "text") {
+        
+
         html = `
           <div class="message ${isSent ? "sent" : "received"}">
-            ${escapeHtml(msg.content)}<span>${time}</span>
+            ${decrypt(escapeHtml(msg.content))}<span>${time}</span>
           </div>
         `;
       }
@@ -1071,7 +1176,7 @@ document.getElementById("confirmProfileUpdate").addEventListener("click", async 
       else if (msg.message_type === "video") {
         const videoUrl = baseMediaUrl + msg.media_url;
         html = `
-          <div class="message ${isSent ? "received" : "received"}">
+          <div class="message ${isSent ? "sent" : "received"}">
             <video controls width="250" style="border-radius: 8px;">
               <source src="${videoUrl}" type="video/webm" />
               Your browser does not support the video tag.
@@ -1131,9 +1236,10 @@ function renderSingleMessage(msg, currentUserId, isGroup = false) {
   const senderLabel = isGroup && !isSent ? `<strong style="color:#333">${msg.username}</strong><br/>` : "";
 
   if (msg.message_type === "text") {
+    const decryption=decrypt(msg.content);
     return `
       <div class="message ${isSent ? "sent" : "received"}">
-        ${senderLabel}${escapeHtml(msg.content)}<span>${time}</span>
+        ${senderLabel}${escapeHtml(decryption)}<span>${time}</span>
       </div>
     `;
   }
@@ -1208,7 +1314,8 @@ document.getElementById("send-message-button").addEventListener("click", sendMes
 
 function sendMessage() {
   const input = document.getElementById("message-input");
-  const content = input.value.trim();
+  const text=input.value.trim();
+  const content = encrypt(text);
   const senderId = parseInt(sessionStorage.getItem("user_id"));
 
   if (!content) return;
@@ -1218,7 +1325,7 @@ function sendMessage() {
 
   const messageData = isGroup
     ? {
-        group_id: currentGroupId,
+        chat_id: currentGroupId,
         sender_id: senderId,
         content: content,
         media_url: "",
@@ -1276,7 +1383,7 @@ document.getElementById("micBtn").onclick = async () => {
       try {
         const res = await fetch(uploadUrl, { method: "POST", body: formData });
         const uploadedFileName = await res.text();
-        const fileUrl = `/uploaded_files/${uploadedFileName}`;
+        const fileUrl = `${uploadedFileName}`;
 
         const senderId = parseInt(sessionStorage.getItem("user_id"));
         const isGroup = typeof currentGroupId !== "undefined" && currentGroupId !== null;
@@ -1341,7 +1448,7 @@ document.getElementById("fileInput").onchange = async (e) => {
   try {
     const res = await fetch(uploadUrl, { method: "POST", body: formData });
     const uploadedFileName = await res.text(); // e.g. "admin1_20250623_212030.png"
-    const fileUrl = `/uploaded_files/${uploadedFileName}`;
+    const fileUrl = `${uploadedFileName}`;
 
     // Determine message type
     let messageType = "file";
@@ -1361,7 +1468,7 @@ document.getElementById("fileInput").onchange = async (e) => {
 
     const payload = isGroup
       ? {
-          group_id: currentGroupId,
+          chat_id: currentGroupId,
           sender_id: senderId,
           content: "",
           media_url: fileUrl,
@@ -1404,8 +1511,9 @@ function openGroupChatSocket(groupId) {
   groupSocket.onopen = () => console.log("📡 Group WebSocket connected");
 
   groupSocket.onmessage = (event) => {
+    console.log(event.data);
     const msg = JSON.parse(event.data);
-    if (msg.group_id !== groupId) return;
+    //if (msg.chat_id !== groupId) return;
 
     const container = document.querySelector(".messages");
     container.innerHTML += renderSingleMessage(msg, sessionStorage.getItem("user_id"), true);
@@ -1436,6 +1544,42 @@ function sendGroupMessage(content, media_url = "", type = "text") {
 
 
 
+</script>
+<script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+<script>
+    const keyHex = "603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4";
+    const ivHex = "000102030405060708090a0b0c0d0e0f";
+
+    const key = CryptoJS.enc.Hex.parse(keyHex);
+    const iv = CryptoJS.enc.Hex.parse(ivHex);
+
+    function encrypt(message) {
+        const encrypted = CryptoJS.AES.encrypt(message, key, {
+            iv: iv,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7
+        });
+        console.log("Encrypted (Base64):", encrypted.toString());
+        return encrypted.toString();
+    }
+
+    function decrypt(cipherText) {
+      if (!cipherText || typeof cipherText !== "string" || cipherText === "Media") {
+      return cipherText; // Don't decrypt "Media", null, or invalid input
+    }
+        const decrypted = CryptoJS.AES.decrypt(cipherText, key, {
+            iv: iv,
+            mode: CryptoJS.mode.CBC,
+            padding: CryptoJS.pad.Pkcs7
+        });
+        const result = decrypted.toString(CryptoJS.enc.Utf8);
+        console.log("Decrypted:", result);
+        return result;
+    }
+
+    // Example usage:
+    const encrypted = encrypt("Hello from web!");
+    const decrypted = decrypt(encrypted);
 </script>
 </body>
 </html>

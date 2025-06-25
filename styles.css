@@ -153,22 +153,6 @@ body {
     font-size: 14px;
     position: relative;
 }
-.audio_sent
-{
- background-color: #ec6911;
-    border-radius: 50px;
-    padding: 5px;
-}
-
-.audio_received
-{
-   
-    
- background-color: #007bff;
-    border-radius: 50px;
-    padding: 5px;
-}
-
 
 .sent {
     background: #007bff;
