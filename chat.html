@@ -355,7 +355,7 @@ function openChat(name, chatid,picture) {
   // Close previous socket if open
   if (chatSocket) chatSocket.close();
 
-  chatSocket = new WebSocket("ws://192.168.4.106:8888/ws/chat");
+  chatSocket = new WebSocket("ws://192.168.100.29:8888/ws/chat");
 
   chatSocket.onopen = () => console.log("✅ WebSocket connected");
 
@@ -430,7 +430,7 @@ window.addEventListener("beforeunload", (e) => {
   if (isClosing) {
     const username = sessionStorage.getItem("username");
     if (username) {
-      const url = "http://192.168.4.106:8888/update-online-status";
+      const url = "http://192.168.100.29:8888/update-online-status";
       const data = JSON.stringify({ username, is_online: false });
 
       navigator.sendBeacon(url, new Blob([data], { type: "application/json" }));
@@ -476,7 +476,7 @@ document.getElementById("submit-password-change").addEventListener("click", func
 
 
 <script>
-const API_URL_CHATS = "http://192.168.4.106:8888/get_user_chats";
+const API_URL_CHATS = "http://192.168.100.29:8888/get_user_chats";
 async function changePassword() {
   const username = sessionStorage.getItem("username"); // Ensure username is saved in session
   const oldPassword = document.getElementById("old-password").value.trim();
@@ -495,7 +495,7 @@ async function changePassword() {
   }
 
   try {
-    const response = await fetch("http://192.168.4.106:8888/update_password", {
+    const response = await fetch("http://192.168.100.29:8888/update_password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -596,7 +596,7 @@ async function loadChats() {
     console.log("simple chats");
 
     // === 2. Fetch group chats ===
-    const groupRes = await fetch("http://192.168.4.106:8888/get_user_groups", {
+    const groupRes = await fetch("http://192.168.100.29:8888/get_user_groups", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username })
@@ -665,7 +665,7 @@ async function loadProfileCard() {
   const username = sessionStorage.getItem("username") || "atif"; // fallback for testing
 
   try {
-    const res = await fetch("http://192.168.4.106:8888/get-user-photo", {
+    const res = await fetch("http://192.168.100.29:8888/get-user-photo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username })
@@ -711,7 +711,7 @@ async function submitProfileUpdatePhoto(event) {
   try {
     const base64Image = await toBase64(file);
 
-    const res = await fetch("http://192.168.4.106:8888/update-user-photo", {
+    const res = await fetch("http://192.168.100.29:8888/update-user-photo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -743,7 +743,7 @@ async function handleContactClick(contactUsername) {
   }
 
   try {
-    const res = await fetch("http://192.168.4.106:8888/create_or_get_chat", {
+    const res = await fetch("http://192.168.100.29:8888/create_or_get_chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -785,7 +785,7 @@ async function createGroup() {
   }
 
   try {
-    const res = await fetch("http://192.168.4.106:8888/create_group", {
+    const res = await fetch("http://192.168.100.29:8888/create_group", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -813,7 +813,7 @@ async function updateOnlineStatus(isOnline) {
   console.log(isOnline);
 
   try {
-    await fetch("http://192.168.4.106:8888/update-online-status", {
+    await fetch("http://192.168.100.29:8888/update-online-status", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -828,7 +828,7 @@ async function updateOnlineStatus(isOnline) {
 }
 async function updateHeaderStatus(username) {
   try {
-    const res = await fetch("http://192.168.4.106:8888/get-online-status", {
+    const res = await fetch("http://192.168.100.29:8888/get-online-status", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username })
@@ -847,7 +847,7 @@ async function updateHeaderStatus(username) {
       try {
         console.log("Checking typing status " + currentChatId + " " + username);
 
-        const typingRes = await fetch(`http://192.168.4.106:8888/typing-status/${currentChatId}/${username}`);
+        const typingRes = await fetch(`http://192.168.100.29:8888/typing-status/${currentChatId}/${username}`);
 
         const typingData = await typingRes.json();
 
@@ -890,7 +890,7 @@ console.log("open Group chat");
   const container = document.querySelector(".messages");
   container.innerHTML = "";
 
-  fetch(`http://192.168.4.106:8888/group_messages/${groupId}`)
+  fetch(`http://192.168.100.29:8888/group_messages/${groupId}`)
     .then(res => res.json())
     .then(messages => {
       let html = "";
@@ -907,7 +907,7 @@ console.log("open Group chat");
 async function updateTypingStatus(chatId, userId, isTyping) {
   try {
     console.log("Updating status"+isTyping);
-    const res = await fetch("http://192.168.4.106:8888/update-typing-status", {
+    const res = await fetch("http://192.168.100.29:8888/update-typing-status", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -949,7 +949,7 @@ function toBase64(file) {
 window.onload = loadChats;
 </script>
 <script>
-const API_URL_USERS = "http://192.168.4.106:8888/get-users";
+const API_URL_USERS = "http://192.168.100.29:8888/get-users";
 
 async function loadContacts() {
   const username = sessionStorage.getItem("username"); // Replace with sessionStorage.getItem("username") if needed
@@ -1007,7 +1007,7 @@ async function loadGroupContacts() {
   const username = sessionStorage.getItem("username"); // Or use sessionStorage.getItem("username")
 
   try {
-    const res = await fetch("http://192.168.4.106:8888/get-users", {
+    const res = await fetch("http://192.168.100.29:8888/get-users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username })
@@ -1089,7 +1089,7 @@ document.getElementById("confirmProfileUpdate").addEventListener("click", async 
       profile_image: selectedImageBase64 // can be null
     };
 
-    const res = await fetch("http://192.168.4.106:8888/update-user-photo", {
+    const res = await fetch("http://192.168.100.29:8888/update-user-photo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -1116,7 +1116,7 @@ document.getElementById("confirmProfileUpdate").addEventListener("click", async 
   try {
     console.log(currentUserId + " current");
 
-    const res = await fetch(`http://192.168.4.106:8888/messages/${chatId}`);
+    const res = await fetch(`http://192.168.100.29:8888/messages/${chatId}`);
     if (!res.ok) throw new Error("Network response was not ok");
 
     const messages = await res.json();
@@ -1128,7 +1128,7 @@ document.getElementById("confirmProfileUpdate").addEventListener("click", async 
       return;
     }
 
-    const baseMediaUrl = "http://192.168.4.106:8888/get-media/?link=";
+    const baseMediaUrl = "http://192.168.100.29:8888/get-media/?link=";
     let allMessagesHTML = "";
 
     messages.forEach(msg => {
@@ -1226,8 +1226,6 @@ function formatTime(isoString) {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-
-
 function renderSingleMessage(msg, currentUserId, isGroup = false) {
   const isSent = parseInt(msg.sender_id) === parseInt(currentUserId);
   const time = new Date(msg.time_stamp).toLocaleTimeString([], {
@@ -1235,13 +1233,23 @@ function renderSingleMessage(msg, currentUserId, isGroup = false) {
     minute: '2-digit'
   });
 
-  const baseMediaUrl = "http://192.168.4.106:8888/get-media/?link=";
+  const baseMediaUrl = "http://192.168.100.29:8888/get-media/?link=";
   const senderLabel = isGroup && !isSent ? `<strong style="color:#333">${msg.username}</strong><br/>` : "";
 
+  let deleteBtn = "";
+  if (isSent) {
+    if (!isGroup) {
+      deleteBtn = `<button class="delete-btn" onclick="deleteMessage(${msg.id}, ${currentUserId})">🗑️</button>`;
+    } else {
+      deleteBtn = `<button class="delete-btn" onclick="deleteGroupMessage(${msg.id}, ${msg.sender_id})">🗑️</button>`;
+    }
+  }
+
   if (msg.message_type === "text") {
-    const decryption=decrypt(msg.content);
+    const decryption = decrypt(msg.content || msg.context); // for group msg use msg.context
     return `
-      <div class="message ${isSent ? "sent" : "received"}">
+      <div class="message ${isSent ? "sent" : "received"}" id="message-${msg.id}">
+        ${deleteBtn}
         ${senderLabel}${escapeHtml(decryption)}<span>${time}</span>
       </div>
     `;
@@ -1250,8 +1258,9 @@ function renderSingleMessage(msg, currentUserId, isGroup = false) {
   if (msg.message_type === "photo") {
     const imageUrl = baseMediaUrl + msg.media_url;
     return `
-      <div class="message" style="align-self:${isSent ? "flex-end" : "flex-start"};">
+      <div class="message" id="message-${msg.id}" style="align-self:${isSent ? "flex-end" : "flex-start"};">
         <div class="media">
+          ${deleteBtn}
           ${senderLabel}
           <img src="${imageUrl}" alt="Image" />
           <span style="color:black">${time}</span>
@@ -1263,7 +1272,8 @@ function renderSingleMessage(msg, currentUserId, isGroup = false) {
   if (msg.message_type === "audio") {
     const audioUrl = baseMediaUrl + msg.media_url.replace(/\.[^/.]+$/, ".webm");
     return `
-      <div class="message ${isSent ? "sent" : "received"}" style="background: white;">
+      <div class="message ${isSent ? "sent" : "received"}" id="message-${msg.id}" style="background: white;">
+        ${deleteBtn}
         ${senderLabel}
         <audio controls src="${audioUrl}" style="background-color:${isSent ? "#007bff" : "#e0e0e0"};
           border-radius: 50px;
@@ -1277,7 +1287,8 @@ function renderSingleMessage(msg, currentUserId, isGroup = false) {
   if (msg.message_type === "video") {
     const videoUrl = baseMediaUrl + msg.media_url;
     return `
-      <div class="message ${isSent ? "sent" : "received"}">
+      <div class="message ${isSent ? "sent" : "received"}" id="message-${msg.id}">
+        ${deleteBtn}
         ${senderLabel}
         <video controls width="250" style="border-radius: 8px;">
           <source src="${videoUrl}" type="video/webm">
@@ -1292,7 +1303,8 @@ function renderSingleMessage(msg, currentUserId, isGroup = false) {
     const fileUrl = baseMediaUrl + msg.media_url;
     const filename = msg.media_url.split("/").pop();
     return `
-      <div class="message ${isSent ? "sent" : "received"}">
+      <div class="message ${isSent ? "sent" : "received"}" id="message-${msg.id}">
+        ${deleteBtn}
         ${senderLabel}
         📎 <a href="${fileUrl}" download target="_blank">${filename}</a>
         <span style="color:black">${time}</span>
@@ -1301,6 +1313,52 @@ function renderSingleMessage(msg, currentUserId, isGroup = false) {
   }
 
   return "";
+}
+
+
+async function deleteMessage(messageId, userId) {
+  try {
+    const response = await fetch(`http://192.168.136.106:8888/delete-message/?message_id=${messageId}&user_id=${userId}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Failed to delete message");
+    }
+
+    const deletedMessage = await response.json();
+    console.log("✅ Deleted:", deletedMessage);
+
+    // Optional: Remove from UI
+    document.getElementById(`message-${messageId}`)?.remove();
+
+  } catch (err) {
+    console.error("❌ Delete failed:", err.message);
+  }
+}
+
+
+async function deleteGroupMessage(messageId, senderId) {
+  console.log(senderId+"M"+messageId+"");
+  try {
+    const res = await fetch(`http://192.168.100.29:8888/delete-group-message/?message_id=${messageId}&sender_id=${senderId}`, {
+      method: "DELETE"
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.detail || "Failed to delete group message");
+    }
+
+    const deleted = await res.json();
+    console.log("✅ Group message deleted:", deleted);
+
+    // Remove from UI
+    document.getElementById(`message-${messageId}`)?.remove();
+  } catch (err) {
+    console.error("❌ Delete failed:", err.message);
+  }
 }
 
 </script>
@@ -1353,6 +1411,30 @@ function sendMessage() {
   input.value = ""; // Clear input after sending
 }
 
+async function deleteMessage(messageId, userId) {
+  try {
+    const response = await fetch(`http://192.168.100.29:8888/delete-message/?message_id=${messageId}&user_id=${userId}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Failed to delete message");
+    }
+
+    const deletedMessage = await response.json();
+    console.log("✅ Deleted:", deletedMessage);
+
+    // Optional: Remove from UI
+    document.getElementById(`message-${messageId}`)?.remove();
+
+  } catch (err) {
+    console.error("❌ Delete failed:", err.message);
+  }
+}
+
+
+
 </script>
 //micBtn and file picture send 
 <script>
@@ -1360,7 +1442,7 @@ function sendMessage() {
 </script>
 <script>
 
-const uploadUrl = "http://192.168.4.106:8888/upload-media/"; // Global upload endpoint
+const uploadUrl = "http://192.168.100.29:8888/upload-media/"; // Global upload endpoint
 let mediaRecorder;
 let isRecording = false;
 let audioChunks = [];
@@ -1509,7 +1591,7 @@ function openGroupChatSocket(groupId) {
   console.log("open grop chat");
   if (groupSocket) groupSocket.close();
 
-  groupSocket = new WebSocket("ws://192.168.4.106:8888/ws/group_chat");
+  groupSocket = new WebSocket("ws://192.168.100.29:8888/ws/group_chat");
 
   groupSocket.onopen = () => console.log("📡 Group WebSocket connected");
 
