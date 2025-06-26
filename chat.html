@@ -525,9 +525,8 @@ async function changePassword() {
 
 
 async function loadChats() {
-
   const username = sessionStorage.getItem("username");
-  console.log(decrypt("RFTtsdBJPf0b3J3d/d0Bjw=="));
+  const userId = parseInt(sessionStorage.getItem("user_id")); // ✅ needed for creator check
 
   if (!username) {
     alert("⚠️ User not logged in.");
@@ -557,7 +556,7 @@ async function loadChats() {
         chatDiv.className = "chat";
 
         const chatId = parseInt(chat.chat_id);
-        chatDiv.onclick = () => openChat(chat.with_username, chatId,chat.profile_picture_base64); // 👈 1-on-1 openChat
+        chatDiv.onclick = () => openChat(chat.with_username, chatId, chat.profile_picture_base64);
 
         const imgSrc = chat.profile_picture_base64 || 'pics/def.jpeg';
         
@@ -567,24 +566,16 @@ async function loadChats() {
           timeText = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
 
-       let lastMsg;
-
-      if (chat.last_message === "Media") {
-      lastMsg = "Media"; // or just `chat.last_message` if you want raw
-      } else 
-      {
-       lastMsg = decrypt(chat.last_message) || ""; // safely decrypt
-      }
+        const lastMsg = chat.last_message === "Media" ? "Media" : decrypt(chat.last_message) || "";
 
         chatDiv.innerHTML = `
-        <img src="${imgSrc}" alt="User" />
-        <div>
-        <h3>${chat.name}</h3>
-        <p>${lastMsg}</p>
-        </div>
-        <span>${timeText}</span>
-`;
-
+          <img src="${imgSrc}" alt="User" />
+          <div>
+            <h3>${chat.name}</h3>
+            <p>${lastMsg}</p>
+          </div>
+          <span>${timeText}</span>
+        `;
 
         chatDiv.dataset.chatId = chat.chat_id;
         chatDiv.dataset.userId = chat.with_user_id;
@@ -593,7 +584,8 @@ async function loadChats() {
         chatList.appendChild(chatDiv);
       });
     }
-    console.log("simple chats");
+
+    console.log("✅ Simple chats loaded");
 
     // === 2. Fetch group chats ===
     const groupRes = await fetch("http://192.168.100.29:8888/get_user_groups", {
@@ -609,47 +601,40 @@ async function loadChats() {
 
     if (groups.length) {
       groups.forEach(group => {
-        const groupDiv = document.createElement("div");
-        groupDiv.className = "chat";
+  const groupDiv = document.createElement("div");
+  groupDiv.className = "chat";
 
-        groupDiv.onclick = () => openGroupChat(group.group_name, group.group_id); // 👈 Group chat handler
-        console.log("update header")
-        
-        let timeText = "";
-        if (group.last_time) {
-          const dt = new Date(group.last_time);
-          timeText = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
-        let lastMsg1;
+  const userId = parseInt(sessionStorage.getItem("user_id")); // ✅ always use current user
 
-        if (group.last_message === "Media")
-        {
-          lastMsg1="Media";
+  let timeText = "";
+  if (group.last_time) {
+    const dt = new Date(group.last_time);
+    timeText = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
 
-        }
-        else 
-      {
-       lastMsg1 = decrypt(group.last_message) || ""; // safely decrypt
-      }
-        
+  const lastMsg1 = group.last_message === "Media" ? "Media" : decrypt(group.last_message) || "";
 
-        groupDiv.innerHTML = `
-          <img src="pics/def.jpeg" alt="Group" />
-          <div>
-            <h3>${group.group_name}</h3>
-            <p>${lastMsg1 || ''}</p>
-          </div>
-          <span>${timeText}</span>
-        `;
-        
-        groupDiv.dataset.groupId = group.group_id;
-        groupDiv.dataset.groupName = group.group_name;
+  groupDiv.innerHTML = `
+    <img src="pics/def.jpeg" alt="Group" />
+    <div>
+      <h3>${group.group_name}</h3>
+      <p>${lastMsg1}</p>
+    </div>
+    <span>${timeText}</span>
+    <button class="delete-btn" onclick="event.stopPropagation(); deleteGroup(${group.group_id}, ${userId})">🗑️</button>
+  `;
 
-        chatList.appendChild(groupDiv);
-      });
+  groupDiv.dataset.groupId = group.group_id;
+  groupDiv.dataset.groupName = group.group_name;
+
+  groupDiv.onclick = () => openGroupChat(group.group_name, group.group_id);
+
+  chatList.appendChild(groupDiv);
+});
+
     }
 
-    // Optional: show message if no chats at all
+    // === 3. If no chats at all ===
     if (chats.length === 0 && groups.length === 0) {
       chatList.innerHTML = "<p style='padding: 20px;'>No chats available.</p>";
     }
@@ -1112,9 +1097,9 @@ document.getElementById("confirmProfileUpdate").addEventListener("click", async 
 });
 </script>
 
-<script>async function loadChatMessages(chatId, currentUserId) {
+<script>async function loadChatMessages(chatId, currentUserId, isGroup = false) {
   try {
-    console.log(currentUserId + " current");
+    console.log("👤 User:", currentUserId, "| 📥 Chat ID:", chatId);
 
     const res = await fetch(`http://192.168.100.29:8888/messages/${chatId}`);
     if (!res.ok) throw new Error("Network response was not ok");
@@ -1128,83 +1113,13 @@ document.getElementById("confirmProfileUpdate").addEventListener("click", async 
       return;
     }
 
-    const baseMediaUrl = "http://192.168.100.29:8888/get-media/?link=";
+    // Use renderSingleMessage for each
     let allMessagesHTML = "";
-
     messages.forEach(msg => {
-      const isSent = parseInt(msg.sender_id) === parseInt(currentUserId);
-      const time = new Date(msg.time_stamp).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-
-      let html = "";
-       //renderSingleMessage(msg,currentUserId);
-
-      if (msg.message_type === "text") {
-        
-
-        html = `
-          <div class="message ${isSent ? "sent" : "received"}">
-            ${decrypt(escapeHtml(msg.content))}<span>${time}</span>
-          </div>
-        `;
-      }
-
-      else if (msg.message_type === "photo") {
-        const imageUrl = baseMediaUrl + msg.media_url;
-        html = `
-          <div class="message" style="align-self:${isSent ? "flex-end" : "flex-start"};">
-            <div class="media">
-              <img src="${imageUrl}" alt="Image" />
-              <span style="color:black">${time}</span>
-            </div>
-          </div>
-        `;
-      }
-
-      else if (msg.message_type === "audio") {
-        const audioUrl = baseMediaUrl + msg.media_url.replace(/\.[^/.]+$/, ".webm");
-        html = `
-          <div class="message ${isSent ? "sent" : "received"}" style="background: white;">
-            <audio controls src="${audioUrl}" style="background-color:${isSent ? "#007bff" : "#e0e0e0"};
-              border-radius: 50px;
-              padding: 3px;">
-            </audio>
-            <span style="color:black">${time}</span>
-          </div>
-        `;
-      }
-
-      else if (msg.message_type === "video") {
-        const videoUrl = baseMediaUrl + msg.media_url;
-        html = `
-          <div class="message ${isSent ? "sent" : "received"}">
-            <video controls width="250" style="border-radius: 8px;">
-              <source src="${videoUrl}" type="video/webm" />
-              Your browser does not support the video tag.
-            </video>
-            <span style="color:black">${time}</span>
-          </div>
-        `;
-      }
-
-      else if (msg.message_type === "file") {
-        const fileUrl = baseMediaUrl + msg.media_url;
-        const filename = msg.media_url.split("/").pop();
-        html = `
-          <div class="message ${isSent ? "sent" : "received"}">
-            📎 <a href="${fileUrl}" download target="_blank">${filename}</a>
-            <span style="color:black">${time}</span>
-          </div>
-        `;
-      }
-
-      allMessagesHTML += html;
+      allMessagesHTML += renderSingleMessage(msg, currentUserId, isGroup);
     });
 
     container.innerHTML = allMessagesHTML;
-
   } catch (err) {
     console.error("❌ Failed to load messages:", err);
   }
@@ -1622,6 +1537,34 @@ function sendGroupMessage(content, media_url = "", type = "text") {
     groupSocket.send(JSON.stringify(payload));
   } else {
     console.warn("Group WebSocket not open.");
+  }
+}
+async function deleteGroup(groupId, userId) {
+  if (!confirm("Are you sure you want to delete this group?")) return;
+
+  try {
+    const res = await fetch(`http://192.168.100.29:8888/delete-group/?group_id=${groupId}&user_id=${userId}`, {
+      method: "DELETE"
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail || "Failed to delete group");
+    }
+
+    const deleted = await res.json();
+    console.log("✅ Group deleted:", deleted);
+
+    // Remove the group from the UI
+    const allChats = document.querySelectorAll(".chat");
+    allChats.forEach(div => {
+      if (parseInt(div.dataset.groupId) === groupId) {
+        div.remove();
+      }
+    });
+  } catch (err) {
+    console.error("❌ Delete group failed:", err.message);
+    alert("Could not delete group.");
   }
 }
 
